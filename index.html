@@ -5,9 +5,12 @@
     <title>Tutorial: Configurando Servidor Web</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- CSS do Reveal.js (Estilo dos slides) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <!-- Tema "Simple" (Similar ao do professor) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github.min.css">
+    <!-- CSS para Destaque de Código -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github-dark.min.css">
     
     <style>
         /* Ajustes para se parecer mais com o estilo IFRN */
@@ -41,12 +44,19 @@
             font-size: 0.5em;
             color: #888;
         }
+        /* Ajuste para o texto do terminal ser menor e caber mais */
+        .reveal pre code {
+            font-size: 0.7em; /* Fonte menor */
+            line-height: 1.2em; /* Espaçamento entre linhas */
+            max-height: 60vh; /* Altura máxima para evitar overflow */
+        }
     </style>
 </head>
 <body>
     <div class="reveal">
         <div class="slides">
 
+            <!-- Slide de Título -->
             <section>
                 <h1>Configurando um Servidor Web</h1>
                 <p>Nginx + MariaDB + phpMyAdmin</p>
@@ -55,6 +65,7 @@
                 <div class="slide-institution">IFRN - Campus São Paulo do Potengi</div>
             </section>
 
+            <!-- Roteiro -->
             <section>
                 <h2>Roteiro</h2>
                 <p>(Baseado nas imagens de `passo 1` a `passo 12`)</p>
@@ -67,6 +78,7 @@
                 </ul>
             </section>
 
+            <!-- Slide 1: Acesso SSH (Keygen/View) -->
             <section>
                 <h2>1. Acesso SSH (Máquina Local)</h2>
                 <p>Gerar a chave (Ref: passo 1.png):</p>
@@ -80,6 +92,7 @@ PS C:\Users\...> cat .\.ssh\id_ed25519.pub
                 </code></pre>
             </section>
 
+            <!-- Slide 2: Acesso SSH (Conexão) -->
             <section>
                 <h2>1. Acesso SSH (Conexão)</h2>
                 <p>Conectar ao servidor remoto (Ref: passo 3.png):</p>
@@ -90,65 +103,117 @@ PS C:\Users\...> ssh lemos.costa@34.57.230.30
                 <p>Conexão estabelecida com a instância Debian.</p>
             </section>
             
+            <!-- Slide 3: Segurança MariaDB (NOVO DETALHE) -->
             <section>
                 <h2>2. Configuração do MariaDB</h2>
                 <p>Executar o script de instalação segura (Ref: passo 4.png):</p>
-                <pre><code data-trim data-noescape>
+                <pre><code class="language-bash" data-trim data-noescape>
 $ sudo mysql_secure_installation
+
+NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED...
+
+Enter current password for root (enter for none): 
+OK, successfully used password, moving on...
+
+Switch to unix_socket authentication [Y/n] n
+ ... skipping.
+
+Change the root password? [Y/n] n
+ ... skipping.
+
+Remove anonymous users? [Y/n] y
+ ... Success!
+
+Disallow root login remotely? [Y/n] y
+ ... Success!
+
+Remove test database and access to it? [Y/n] y
+ - Dropping test database...
+ ... Success!
+ - Removing privileges on test database...
+ ... Success!
+
+Reload privilege tables now? [Y/n] y
+ ... Success!
+
+Cleaning up...
+All done!
                 </code></pre>
-                <ul>
-                    <li>Switch to unix_socket authentication? [Y/n] <strong>n</strong></li>
-                    <li>Remove anonymous users? [Y/n] <strong>y</strong></li>
-                    <li>Disallow root login remotely? [Y/n] <strong>y</strong></li>
-                    <li>Remove test database and access to it? [Y/n] <strong>y</strong></li>
-                </ul>
             </section>
 
+            <!-- Slide 4: Verificação MariaDB -->
             <section>
                 <h2>2. Configuração do MariaDB</h2>
                 <p>Verificar o acesso ao banco (Ref: passo 5.png):</p>
                 <pre><code data-trim data-noescape>
 $ sudo mysql -u root
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 37
+Server version: 10.11.14-MariaDB-0+deb12u2 Debian 12
+...
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
                 </code></pre>
-                <p>Sucesso! Você está no monitor MariaDB.</p>
             </section>
             
+            <!-- Slide 5: Instalação PHP -->
             <section>
                 <h2>3. Instalação (PHP & phpMyAdmin)</h2>
                 <p>Instalar os pacotes necessários (Ref: passo 6.png):</p>
                 <pre><code data-trim data-noescape>
 $ sudo apt install phpmyadmin php-fpm php-mysql
+Reading package lists... Done
+Building dependency tree... Done
+...
+The following NEW packages will be installed:
+  (lista longa de pacotes)
+...
+0 upgraded, 97 newly installed, 0 to remove and 5 not upgraded.
+Need to get 33.8 MB of archives.
+After this operation, 151 MB of additional disk space will be used.
+Do you want to continue? [Y/n] y
                 </code></pre>
-                <p>(Isso instala o phpMyAdmin e o processador PHP para o Nginx)</p>
             </section>
 
+            <!-- Slide 6: O Problema (Conflito - NOVO DETALHE) -->
             <section>
                 <h2>4. Resolução de Conflitos</h2>
                 <p><strong>O Problema:</strong> (Ref: passo 7.png)</p>
-                <p>O <code>apache2</code> foi instalado e tentou usar a porta 80, mas o Nginx já estava lá.</p>
+                <p>O <code>apache2</code> foi instalado e tentou usar a porta 80.</p>
                 <pre><code data-trim data-noescape>
+$ sudo systemctl status apache2
+
 ● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; ...)
      Active: failed (Result: exit-code) ...
-... AH00072: make_sock: could not bind to address ...
+...
+Nov 07 19:42:25 ... systemd[1]: apache2.service: Control process exited, code=exited, status=1/FAILURE
+Nov 07 19:42:25 ... systemd[1]: apache2.service: Failed with result 'exit-code'.
+Nov 07 19:42:25 ... systemd[1]: Failed to start apache2.service - The Apache HTTP Server.
+Nov 07 19:42:25 ... apachectl[381]: (98)Address already in use: AH00072: make_sock: could not bind to address ...
                 </code></pre>
             </section>
             
+            <!-- Slide 7: A Solução (Desabilitar Apache) -->
             <section>
                 <h2>4. Resolução de Conflitos</h2>
                 <p><strong>A Solução:</strong> Parar e desabilitar o Apache2 (Ref: passo 7.png).</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl disable apache2
+Synchronizing state of apache2.service with sysv service script...
+Executing: /lib/systemd/systemd-sysv-install disable apache2
+Removed /etc/systemd/system/multi-user.target.wants/apache2.service.
 $ sudo systemctl stop apache2
                 </code></pre>
                 <p><strong>Verificar Nginx</strong> (Ref: passo 8.png):</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl status nginx
-...
-     Active: active (running) ...
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; ...)
+     Active: active (running) since Fri 2025-11-07 19:42:23 UTC; 45min ago
                 </code></pre>
-                <p>Nginx está rodando corretamente!</p>
             </section>
 
+            <!-- Slide 8: O Erro de Sintaxe -->
             <section>
                 <h2>5. Configuração do Nginx (O Erro)</h2>
                 <p>Ao tentar editar o arquivo, um comando errado foi usado (Ref: passo 9.png / 10.png):</p>
@@ -157,9 +222,9 @@ $ ls /etc/nginx/sites-enable/sudo nano /etc/nginx/sites-available/default
 ls: cannot access '/etc/nginx/sites-enable/sudo': No such file...
 ls: cannot access 'nano': No such file or directory
                 </code></pre>
-                <p><small>O terminal tentou passar "sudo" e "nano" como arquivos para o comando "ls".</small></p>
             </section>
 
+            <!-- Slide 9: A Correção (Edição) -->
             <section>
                 <h2>5. Configuração do Nginx (A Correção)</h2>
                 <p>O comando correto para editar o arquivo (Ref: passo 11.png):</p>
@@ -169,6 +234,7 @@ $ sudo nano /etc/nginx/sites-available/default
                 <p>(Dentro deste arquivo, você adiciona a configuração para o PHP e a <code>location /phpmyadmin</code>)</p>
             </section>
 
+            <!-- Slide 10: Passos Finais (NOVO DETALHE) -->
             <section>
                 <h2>5. Configuração do Nginx (Resultado)</h2>
                 <p>Após salvar no <code>nano</code>, você reiniciou e verificou o Nginx (Ref: passo 12.png):</p>
@@ -176,12 +242,14 @@ $ sudo nano /etc/nginx/sites-available/default
                 <pre><code data-trim data-noescape>
 $ sudo systemctl restart nginx
 $ sudo systemctl status nginx
-...
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; preset: enabled)
      Active: active (running) since Fri 2025-11-07 20:44:31 UTC; 10s ago
                 </code></pre>
                 <p><strong>Sucesso!</strong> O servidor está configurado e rodando.</p>
             </section>
 
+            <!-- Slide Final -->
             <section>
                 <h2>Fim!</h2>
                 <p>Tutorial de configuração do servidor concluído.</p>
@@ -192,6 +260,7 @@ $ sudo systemctl status nginx
         <div class="footer">Tutorial de Configuração de Servidor</div>
     </div>
 
+    <!-- JS do Reveal.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/highlight/highlight.min.js"></script>
     <script>
