@@ -9,41 +9,51 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
     <!-- Tema "Simple" (Similar ao do professor) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css">
-    <!-- CSS para Destaque de Código -->
+    <!-- CSS para Destaque de Código (Tema Escuro) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github-dark.min.css">
     
     <style>
-        /* Ajustes para se parecer mais com o estilo IFRN */
-        .reveal {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        /* Ajustes para se parecer mais com o estilo IFRN (Tema Escuro) */
+        body, .reveal {
+            background-color: #2b2b2b; /* Fundo cinza quase preto */
+            color: #eee; /* Cor de fonte principal clara */
         }
+        
         .reveal h1, .reveal h2, .reveal h3 {
-            color: #00420c; /* Verde IFRN */
+            color: #77dd77; /* Verde IFRN (Claro) */
             font-weight: 600;
         }
+        
         .reveal code {
             font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
         }
+        
+        /* Ajusta o container do bloco de código */
         .reveal pre {
             width: 100%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background-color: #333333; /* Fundo do bloco de código */
+            border: 1px solid #555;
+            box-shadow: none; /* Remove sombra, desnecessária no escuro */
         }
+        
         .reveal .slide-author {
             margin-top: 2rem;
             font-size: 0.8em;
-            color: #333;
+            color: #ccc; /* Cor clara */
         }
+        
         .reveal .slide-institution {
             font-size: 0.7em;
-            color: #555;
+            color: #bbb; /* Cor clara */
         }
-        .reveal .footer {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            font-size: 0.5em;
-            color: #888;
+        
+        /* Regra do Footer REMOVIDA */
+        
+        /* Garante que links fiquem visíveis */
+        .reveal a {
+            color: #42a5f5;
         }
+
         /* Ajuste para o texto do terminal ser menor e caber mais */
         .reveal pre code {
             font-size: 0.7em; /* Fonte menor */
@@ -61,32 +71,19 @@
                 <h1>Configurando um Servidor Web</h1>
                 <p>Nginx + MariaDB + phpMyAdmin</p>
                 <br>
-                <div class="slide-author">Eduardo</div>
+                <!-- <div class="slide-author">seu-nome</div> --> <!-- REMOVIDO -->
                 <div class="slide-institution">IFRN - Campus São Paulo do Potengi</div>
-            </section>
-
-            <!-- Roteiro -->
-            <section>
-                <h2>Roteiro</h2>
-                <p>(Baseado nas imagens de `passo 1` a `passo 12`)</p>
-                <ul>
-                    <li>1. Acesso SSH ao Servidor</li>
-                    <li>2. Configuração do MariaDB</li>
-                    <li>3. Instalação do PHP / phpMyAdmin</li>
-                    <li>4. Resolução de Conflito (Apache vs Nginx)</li>
-                    <li>5. Configuração do Nginx (O Erro e a Correção)</li>
-                </ul>
             </section>
 
             <!-- Slide 1: Acesso SSH (Keygen/View) -->
             <section>
                 <h2>1. Acesso SSH (Máquina Local)</h2>
-                <p>Gerar a chave (Ref: passo 1.png):</p>
+                <p>Gerar a chave:</p>
                 <pre><code data-trim data-noescape>
-PS C:\Users\...> ssh-keygen -t ed25519 -C "eduardo"
+PS C:\Users\...> ssh-keygen -t ed25519 -C "seu-nome"
                 </code></pre>
                 
-                <p>Visualizar a chave pública (Ref: passo 2.png):</p>
+                <p>Visualizar a chave pública:</p>
                 <pre><code data-trim data-noescape>
 PS C:\Users\...> cat .\.ssh\id_ed25519.pub
                 </code></pre>
@@ -95,18 +92,18 @@ PS C:\Users\...> cat .\.ssh\id_ed25519.pub
             <!-- Slide 2: Acesso SSH (Conexão) -->
             <section>
                 <h2>1. Acesso SSH (Conexão)</h2>
-                <p>Conectar ao servidor remoto (Ref: passo 3.png):</p>
+                <p>Conectar ao servidor remoto:</p>
 
                 <pre><code data-trim data-noescape>
-PS C:\Users\...> ssh lemos.costa@34.57.230.30
+PS C:\Users\...> ssh nome-da-chave@ip-externo-da-vm
                 </code></pre>
                 <p>Conexão estabelecida com a instância Debian.</p>
             </section>
             
-            <!-- Slide 3: Segurança MariaDB (NOVO DETALHE) -->
+            <!-- Slide 3: Segurança MariaDB -->
             <section>
                 <h2>2. Configuração do MariaDB</h2>
-                <p>Executar o script de instalação segura (Ref: passo 4.png):</p>
+                <p>Executar o script de instalação segura:</p>
                 <pre><code class="language-bash" data-trim data-noescape>
 $ sudo mysql_secure_installation
 
@@ -144,7 +141,7 @@ All done!
             <!-- Slide 4: Verificação MariaDB -->
             <section>
                 <h2>2. Configuração do MariaDB</h2>
-                <p>Verificar o acesso ao banco (Ref: passo 5.png):</p>
+                <p>Verificar o acesso ao banco:</p>
                 <pre><code data-trim data-noescape>
 $ sudo mysql -u root
 Welcome to the MariaDB monitor.  Commands end with ; or \g.
@@ -158,7 +155,7 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
             <!-- Slide 5: Instalação PHP -->
             <section>
                 <h2>3. Instalação (PHP & phpMyAdmin)</h2>
-                <p>Instalar os pacotes necessários (Ref: passo 6.png):</p>
+                <p>Instalar os pacotes necessários:</p>
                 <pre><code data-trim data-noescape>
 $ sudo apt install phpmyadmin php-fpm php-mysql
 Reading package lists... Done
@@ -174,10 +171,10 @@ Do you want to continue? [Y/n] y
                 </code></pre>
             </section>
 
-            <!-- Slide 6: O Problema (Conflito - NOVO DETALHE) -->
+            <!-- Slide 6: O Problema (Conflito) -->
             <section>
                 <h2>4. Resolução de Conflitos</h2>
-                <p><strong>O Problema:</strong> (Ref: passo 7.png)</p>
+                <p><strong>O Problema:</strong></p>
                 <p>O <code>apache2</code> foi instalado e tentou usar a porta 80.</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl status apache2
@@ -196,7 +193,7 @@ Nov 07 19:42:25 ... apachectl[381]: (98)Address already in use: AH00072: make_so
             <!-- Slide 7: A Solução (Desabilitar Apache) -->
             <section>
                 <h2>4. Resolução de Conflitos</h2>
-                <p><strong>A Solução:</strong> Parar e desabilitar o Apache2 (Ref: passo 7.png).</p>
+                <p><strong>A Solução:</strong> Parar e desabilitar o Apache2.</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl disable apache2
 Synchronizing state of apache2.service with sysv service script...
@@ -204,7 +201,7 @@ Executing: /lib/systemd/systemd-sysv-install disable apache2
 Removed /etc/systemd/system/multi-user.target.wants/apache2.service.
 $ sudo systemctl stop apache2
                 </code></pre>
-                <p><strong>Verificar Nginx</strong> (Ref: passo 8.png):</p>
+                <p><strong>Verificar Nginx</strong>:</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl status nginx
 ● nginx.service - A high performance web server and a reverse proxy server
@@ -216,7 +213,7 @@ $ sudo systemctl status nginx
             <!-- Slide 8: O Erro de Sintaxe -->
             <section>
                 <h2>5. Configuração do Nginx (O Erro)</h2>
-                <p>Ao tentar editar o arquivo, um comando errado foi usado (Ref: passo 9.png / 10.png):</p>
+                <p>Ao tentar editar o arquivo, um comando errado foi usado:</p>
                 <pre><code data-trim data-noescape>
 $ ls /etc/nginx/sites-enable/sudo nano /etc/nginx/sites-available/default
 ls: cannot access '/etc/nginx/sites-enable/sudo': No such file...
@@ -227,17 +224,17 @@ ls: cannot access 'nano': No such file or directory
             <!-- Slide 9: A Correção (Edição) -->
             <section>
                 <h2>5. Configuração do Nginx (A Correção)</h2>
-                <p>O comando correto para editar o arquivo (Ref: passo 11.png):</p>
+                <p>O comando correto para editar o arquivo:</p>
                 <pre><code data-trim data-noescape>
 $ sudo nano /etc/nginx/sites-available/default
                 </code></pre>
                 <p>(Dentro deste arquivo, você adiciona a configuração para o PHP e a <code>location /phpmyadmin</code>)</p>
             </section>
 
-            <!-- Slide 10: Passos Finais (NOVO DETALHE) -->
+            <!-- Slide 10: Passos Finais -->
             <section>
                 <h2>5. Configuração do Nginx (Resultado)</h2>
-                <p>Após salvar no <code>nano</code>, você reiniciou e verificou o Nginx (Ref: passo 12.png):</p>
+                <p>Após salvar no <code>nano</code>, você reiniciou e verificou o Nginx:</p>
                 
                 <pre><code data-trim data-noescape>
 $ sudo systemctl restart nginx
@@ -257,7 +254,7 @@ $ sudo systemctl status nginx
 
         </div>
         
-        <div class="footer">Tutorial de Configuração de Servidor</div>
+        <!-- DIV do Footer REMOVIDA -->
     </div>
 
     <!-- JS do Reveal.js -->
@@ -268,7 +265,7 @@ $ sudo systemctl status nginx
         Reveal.initialize({
             hash: true,
             plugins: [ RevealHighlight ],
-            slideNumber: true,
+            slideNumber: true, // <-- Esta linha controla a numeração da página
         });
     </script>
 </body>
