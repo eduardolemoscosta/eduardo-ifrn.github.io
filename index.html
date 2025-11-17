@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt">
+<head>
+    <meta charset="utf-8">
+    <title>Tutorial: Configurando Servidor Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github.min.css">
+    
+    <style>
+        /* Ajustes para se parecer mais com o estilo IFRN */
+        .reveal {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        .reveal h1, .reveal h2, .reveal h3 {
+            color: #00420c; /* Verde IFRN */
+            font-weight: 600;
+        }
+        .reveal code {
+            font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+        }
+        .reveal pre {
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .reveal .slide-author {
+            margin-top: 2rem;
+            font-size: 0.8em;
+            color: #333;
+        }
+        .reveal .slide-institution {
+            font-size: 0.7em;
+            color: #555;
+        }
+        .reveal .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.5em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <section>
+                <h1>Configurando um Servidor Web</h1>
+                <p>Nginx + MariaDB + phpMyAdmin</p>
+                <br>
+                <div class="slide-author">Eduardo</div>
+                <div class="slide-institution">IFRN - Campus São Paulo do Potengi</div>
+            </section>
+
+            <section>
+                <h2>Roteiro</h2>
+                <p>(Baseado nas imagens de `passo 1` a `passo 12`)</p>
+                <ul>
+                    <li>1. Acesso SSH ao Servidor</li>
+                    <li>2. Configuração do MariaDB</li>
+                    <li>3. Instalação do PHP / phpMyAdmin</li>
+                    <li>4. Resolução de Conflito (Apache vs Nginx)</li>
+                    <li>5. Configuração do Nginx (O Erro e a Correção)</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>1. Acesso SSH (Máquina Local)</h2>
+                <p>Gerar a chave (Ref: passo 1.png):</p>
+                <pre><code data-trim data-noescape>
+PS C:\Users\...> ssh-keygen -t ed25519 -C "eduardo"
+                </code></pre>
+                
+                <p>Visualizar a chave pública (Ref: passo 2.png):</p>
+                <pre><code data-trim data-noescape>
+PS C:\Users\...> cat .\.ssh\id_ed25519.pub
+                </code></pre>
+            </section>
+
+            <section>
+                <h2>1. Acesso SSH (Conexão)</h2>
+                <p>Conectar ao servidor remoto (Ref: passo 3.png):</p>
+
+                <pre><code data-trim data-noescape>
+PS C:\Users\...> ssh lemos.costa@34.57.230.30
+                </code></pre>
+                <p>Conexão estabelecida com a instância Debian.</p>
+            </section>
+            
+            <section>
+                <h2>2. Configuração do MariaDB</h2>
+                <p>Executar o script de instalação segura (Ref: passo 4.png):</p>
+                <pre><code data-trim data-noescape>
+$ sudo mysql_secure_installation
+                </code></pre>
+                <ul>
+                    <li>Switch to unix_socket authentication? [Y/n] <strong>n</strong></li>
+                    <li>Remove anonymous users? [Y/n] <strong>y</strong></li>
+                    <li>Disallow root login remotely? [Y/n] <strong>y</strong></li>
+                    <li>Remove test database and access to it? [Y/n] <strong>y</strong></li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>2. Configuração do MariaDB</h2>
+                <p>Verificar o acesso ao banco (Ref: passo 5.png):</p>
+                <pre><code data-trim data-noescape>
+$ sudo mysql -u root
+                </code></pre>
+                <p>Sucesso! Você está no monitor MariaDB.</p>
+            </section>
+            
+            <section>
+                <h2>3. Instalação (PHP & phpMyAdmin)</h2>
+                <p>Instalar os pacotes necessários (Ref: passo 6.png):</p>
+                <pre><code data-trim data-noescape>
+$ sudo apt install phpmyadmin php-fpm php-mysql
+                </code></pre>
+                <p>(Isso instala o phpMyAdmin e o processador PHP para o Nginx)</p>
+            </section>
+
+            <section>
+                <h2>4. Resolução de Conflitos</h2>
+                <p><strong>O Problema:</strong> (Ref: passo 7.png)</p>
+                <p>O <code>apache2</code> foi instalado e tentou usar a porta 80, mas o Nginx já estava lá.</p>
+                <pre><code data-trim data-noescape>
+● apache2.service - The Apache HTTP Server
+     Active: failed (Result: exit-code) ...
+... AH00072: make_sock: could not bind to address ...
+                </code></pre>
+            </section>
+            
+            <section>
+                <h2>4. Resolução de Conflitos</h2>
+                <p><strong>A Solução:</strong> Parar e desabilitar o Apache2 (Ref: passo 7.png).</p>
+                <pre><code data-trim data-noescape>
+$ sudo systemctl disable apache2
+$ sudo systemctl stop apache2
+                </code></pre>
+                <p><strong>Verificar Nginx</strong> (Ref: passo 8.png):</p>
+                <pre><code data-trim data-noescape>
+$ sudo systemctl status nginx
+...
+     Active: active (running) ...
+                </code></pre>
+                <p>Nginx está rodando corretamente!</p>
+            </section>
+
+            <section>
+                <h2>5. Configuração do Nginx (O Erro)</h2>
+                <p>Ao tentar editar o arquivo, um comando errado foi usado (Ref: passo 9.png / 10.png):</p>
+                <pre><code data-trim data-noescape>
+$ ls /etc/nginx/sites-enable/sudo nano /etc/nginx/sites-available/default
+ls: cannot access '/etc/nginx/sites-enable/sudo': No such file...
+ls: cannot access 'nano': No such file or directory
+                </code></pre>
+                <p><small>O terminal tentou passar "sudo" e "nano" como arquivos para o comando "ls".</small></p>
+            </section>
+
+            <section>
+                <h2>5. Configuração do Nginx (A Correção)</h2>
+                <p>O comando correto para editar o arquivo (Ref: passo 11.png):</p>
+                <pre><code data-trim data-noescape>
+$ sudo nano /etc/nginx/sites-available/default
+                </code></pre>
+                <p>(Dentro deste arquivo, você adiciona a configuração para o PHP e a <code>location /phpmyadmin</code>)</p>
+            </section>
+
+            <section>
+                <h2>5. Configuração do Nginx (Resultado)</h2>
+                <p>Após salvar no <code>nano</code>, você reiniciou e verificou o Nginx (Ref: passo 12.png):</p>
+                
+                <pre><code data-trim data-noescape>
+$ sudo systemctl restart nginx
+$ sudo systemctl status nginx
+...
+     Active: active (running) since Fri 2025-11-07 20:44:31 UTC; 10s ago
+                </code></pre>
+                <p><strong>Sucesso!</strong> O servidor está configurado e rodando.</p>
+            </section>
+
+            <section>
+                <h2>Fim!</h2>
+                <p>Tutorial de configuração do servidor concluído.</p>
+            </section>
+
+        </div>
+        
+        <div class="footer">Tutorial de Configuração de Servidor</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/highlight/highlight.min.js"></script>
+    <script>
+        // Inicialização
+        Reveal.initialize({
+            hash: true,
+            plugins: [ RevealHighlight ],
+            slideNumber: true,
+        });
+    </script>
+</body>
+</html>
