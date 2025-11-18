@@ -19,16 +19,40 @@
             color: #eee; /* Cor de fonte principal clara */
         }
         
-        /* --- MUDANÇA AQUI --- */
         /* Alinha todo o conteúdo do slide à esquerda por padrão */
         .reveal .slides section {
             text-align: left;
         }
         
-        .reveal h1, .reveal h2, .reveal h3 {
+        /* --- AJUSTES DE TAMANHO DE FONTE (Correção para PC) --- */
+        .reveal h1 {
             color: #77dd77; /* Verde IFRN (Claro) */
             font-weight: 600;
-            text-align: left; /* <-- ADICIONADO */
+            text-align: left;
+            font-size: 2.2em; /* Reduzido */
+            line-height: 1.1;
+            margin-bottom: 30px;
+            text-transform: none;
+        }
+        
+        .reveal h2 {
+            color: #77dd77;
+            font-weight: 600;
+            text-align: left;
+            font-size: 1.5em; /* Reduzido */
+            margin-bottom: 20px;
+        }
+        
+        .reveal h3 {
+            color: #77dd77;
+            font-weight: 600;
+            text-align: left;
+            font-size: 1.2em;
+        }
+
+        .reveal p, .reveal li {
+            font-size: 0.9em; /* Texto base confortável */
+            line-height: 1.6;
         }
         
         .reveal code {
@@ -40,30 +64,30 @@
             width: 100%;
             background-color: #333333; /* Fundo do bloco de código */
             border: 1px solid #555;
-            box-shadow: none; /* Remove sombra, desnecessária no escuro */
+            box-shadow: none;
+            margin-top: 20px;
         }
         
         .reveal .slide-author {
             margin-top: 2rem;
             font-size: 0.8em;
-            color: #ccc; /* Cor clara */
+            color: #ccc;
         }
         
         .reveal .slide-institution {
             font-size: 0.7em;
-            color: #bbb; /* Cor clara */
+            color: #bbb;
         }
         
-        /* Garante que links fiquem visíveis */
         .reveal a {
             color: #42a5f5;
         }
 
         /* Ajuste para o texto do terminal ser menor e caber mais */
         .reveal pre code {
-            font-size: 0.7em; /* Fonte menor */
-            line-height: 1.2em; /* Espaçamento entre linhas */
-            max-height: 60vh; /* Altura máxima para evitar overflow */
+            font-size: 0.7em;
+            line-height: 1.2em;
+            max-height: 60vh;
         }
     </style>
 </head>
@@ -74,7 +98,7 @@
             <!-- Slide de Título -->
             <section>
                 <h1>Configurando um Servidor Web</h1>
-                <p>Nginx + MariaDB + phpMyAdmin</p>
+                <p>Nginx + MariaDB + phpMyAdmin + Acesso Remoto</p>
                 <br>
                 <div class="slide-institution">IFRN - Campus São Paulo do Potengi</div>
             </section>
@@ -103,11 +127,37 @@ PS C:\Users\...> ssh nome-da-chave@ip-externo-da-vm
                 </code></pre>
                 <p>Conexão estabelecida com a instância Debian.</p>
             </section>
-            
-            <!-- Slide 3: Segurança MariaDB -->
+
+            <!-- Slide: Alerta de Segurança SSH -->
             <section>
-                <h2>2. Configuração do MariaDB</h2>
-                <p>Executar o script de instalação segura:</p>
+                <h2>1. Acesso SSH (Primeira Conexão)</h2>
+                <p>Na primeira vez, o SSH pedirá para confirmar a identidade do servidor ("Fingerprint"):</p>
+                
+                <pre><code data-trim data-noescape>
+The authenticity of host 'ip-externo-da-vm' can't be established.
+ED25519 key fingerprint is SHA256:TPRNsXMBU...
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? 
+                </code></pre>
+
+                <p>Responda: <strong>yes</strong></p>
+                <p><small>Isso salvará a identidade do servidor no seu computador para futuras conexões seguras.</small></p>
+            </section>
+            
+            <!-- Slide 3: Instalação Básica -->
+            <section>
+                <h2>2. Instalação dos Pacotes</h2>
+                <p>Primeiro, atualize e instale o servidor web e o banco de dados:</p>
+                <pre><code class="language-bash" data-trim data-noescape>
+$ sudo apt update
+$ sudo apt install nginx mariadb-server
+                </code></pre>
+            </section>
+
+            <!-- Slide 4: Segurança MariaDB -->
+            <section>
+                <h2>3. MariaDB (Instalação Segura)</h2>
+                <p>Executar o script de segurança:</p>
                 <pre><code class="language-bash" data-trim data-noescape>
 $ sudo mysql_secure_installation
 
@@ -117,69 +167,72 @@ Enter current password for root (enter for none):
 OK, successfully used password, moving on...
 
 Switch to unix_socket authentication [Y/n] n
- ... skipping.
-
 Change the root password? [Y/n] n
- ... skipping.
-
 Remove anonymous users? [Y/n] y
- ... Success!
-
 Disallow root login remotely? [Y/n] y
- ... Success!
-
 Remove test database and access to it? [Y/n] y
- - Dropping test database...
- ... Success!
- - Removing privileges on test database...
- ... Success!
-
 Reload privilege tables now? [Y/n] y
- ... Success!
-
-Cleaning up...
+...
 All done!
                 </code></pre>
             </section>
 
-            <!-- Slide 4: Verificação MariaDB -->
+            <!-- Slide 5: Configuração Remota 1 -->
             <section>
-                <h2>2. Configuração do MariaDB</h2>
-                <p>Verificar o acesso ao banco:</p>
+                <h2>3. MariaDB (Acesso Remoto 1)</h2>
+                <p>Para acessar via Workbench, precisamos permitir conexões externas.</p>
+                <p>Edite o arquivo de configuração:</p>
+                <pre><code data-trim data-noescape>
+$ sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf
+                </code></pre>
+                <p>Encontre a linha <code>bind-address</code> e altere para:</p>
+                <pre><code class="ini" data-trim data-noescape>
+# De: bind-address = 127.0.0.1
+# Para:
+bind-address = 0.0.0.0
+                </code></pre>
+                <p><small>(Isso permite que o banco "escute" conexões de fora)</small></p>
+            </section>
+
+            <!-- Slide 6: Configuração Remota 2 -->
+            <section>
+                <h2>3. MariaDB (Acesso Remoto 2)</h2>
+                <p>Entre no banco e crie um usuário remoto:</p>
                 <pre><code data-trim data-noescape>
 $ sudo mysql -u root
-Welcome to the MariaDB monitor.  Commands end with ; or \g.
-Your MariaDB connection id is 37
-Server version: 10.11.14-MariaDB-0+deb12u2 Debian 12
-...
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> CREATE USER 'aluno'@'%' IDENTIFIED BY 'ifrn123';
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON *.* TO 'aluno'@'%' WITH GRANT OPTION;
+MariaDB [(none)]> FLUSH PRIVILEGES;
+MariaDB [(none)]> exit;
+                </code></pre>
+                <p>Reinicie o serviço para aplicar:</p>
+                <pre><code data-trim data-noescape>
+$ sudo systemctl restart mariadb
                 </code></pre>
             </section>
             
-            <!-- Slide 5: Instalação PHP -->
+            <!-- Slide 7: Instalação PHP -->
             <section>
-                <h2>3. Instalação (PHP & phpMyAdmin)</h2>
+                <h2>4. Instalação (PHP & phpMyAdmin)</h2>
                 <p>Instalar os pacotes necessários:</p>
                 <pre><code data-trim data-noescape>
 $ sudo apt install phpmyadmin php-fpm php-mysql
 Reading package lists... Done
 Building dependency tree... Done
 ...
-The following NEW packages will be installed:
-  (lista longa de pacotes)
-...
 0 upgraded, 97 newly installed, 0 to remove and 5 not upgraded.
 Need to get 33.8 MB of archives.
 After this operation, 151 MB of additional disk space will be used.
 Do you want to continue? [Y/n] y
                 </code></pre>
+                <p><small>Nota: Se perguntar servidor web, deixe em branco (TAB -> OK). Se perguntar dbconfig, sim.</small></p>
             </section>
 
-            <!-- Slide 6: O Problema (Conflito) -->
+            <!-- Slide 8: O Problema (Conflito) -->
             <section>
-                <h2>4. Resolução de Conflitos</h2>
-                <p><strong>O Problema:</strong></p>
-                <p>O <code>apache2</code> foi instalado e tentou usar a porta 80.</p>
+                <h2>5. Resolução de Conflitos</h2>
+                <p><strong>O Problema:</strong> O <code>apache2</code> tenta usar a porta 80.</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl status apache2
 
@@ -187,22 +240,16 @@ $ sudo systemctl status apache2
      Loaded: loaded (/lib/systemd/system/apache2.service; enabled; ...)
      Active: failed (Result: exit-code) ...
 ...
-Nov 07 19:42:25 ... systemd[1]: apache2.service: Control process exited, code=exited, status=1/FAILURE
-Nov 07 19:42:25 ... systemd[1]: apache2.service: Failed with result 'exit-code'.
-Nov 07 19:42:25 ... systemd[1]: Failed to start apache2.service - The Apache HTTP Server.
 Nov 07 19:42:25 ... apachectl[381]: (98)Address already in use: AH00072: make_sock: could not bind to address ...
                 </code></pre>
             </section>
             
-            <!-- Slide 7: A Solução (Desabilitar Apache) -->
+            <!-- Slide 9: A Solução (Desabilitar Apache) -->
             <section>
-                <h2>4. Resolução de Conflitos</h2>
+                <h2>5. Resolução de Conflitos</h2>
                 <p><strong>A Solução:</strong> Parar e desabilitar o Apache2.</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl disable apache2
-Synchronizing state of apache2.service with sysv service script...
-Executing: /lib/systemd/systemd-sysv-install disable apache2
-Removed /etc/systemd/system/multi-user.target.wants/apache2.service.
 $ sudo systemctl stop apache2
                 </code></pre>
                 <p><strong>Verificar Nginx</strong>:</p>
@@ -214,31 +261,30 @@ $ sudo systemctl status nginx
                 </code></pre>
             </section>
 
-            <!-- Slide 8: O Erro de Sintaxe -->
+            <!-- Slide 10: A Correção (Edição) -->
             <section>
-                <h2>5. Configuração do Nginx (O Erro)</h2>
-                <p>Ao tentar editar o arquivo, um comando errado foi usado:</p>
-                <pre><code data-trim data-noescape>
-$ ls /etc/nginx/sites-enable/sudo nano /etc/nginx/sites-available/default
-ls: cannot access '/etc/nginx/sites-enable/sudo': No such file...
-ls: cannot access 'nano': No such file or directory
-                </code></pre>
-            </section>
-
-            <!-- Slide 9: A Correção (Edição) -->
-            <section>
-                <h2>5. Configuração do Nginx (A Correção)</h2>
+                <h2>6. Configuração do Nginx</h2>
                 <p>O comando correto para editar o arquivo:</p>
                 <pre><code data-trim data-noescape>
 $ sudo nano /etc/nginx/sites-available/default
                 </code></pre>
                 <p>(Dentro deste arquivo, você adiciona a configuração para o PHP e a <code>location /phpmyadmin</code>)</p>
             </section>
-
-            <!-- Slide 10: Passos Finais -->
+            
+            <!-- Slide 11: Link Simbólico (IMPORTANTE) -->
             <section>
-                <h2>5. Configuração do Nginx (Resultado)</h2>
-                <p>Após salvar no <code>nano</code>, você reiniciou e verificou o Nginx:</p>
+                <h2>6. Configuração do Nginx (Link)</h2>
+                <p>Para facilitar o acesso ao phpMyAdmin, crie um link simbólico:</p>
+                <pre><code data-trim data-noescape>
+$ sudo ln -s /usr/share/phpmyadmin /var/www/html/phpmyadmin
+                </code></pre>
+                <p><small>Isso cria um "atalho" na pasta do site que aponta para a instalação do phpMyAdmin.</small></p>
+            </section>
+
+            <!-- Slide 12: Passos Finais -->
+            <section>
+                <h2>6. Configuração do Nginx (Fim)</h2>
+                <p>Após salvar no <code>nano</code> e criar o link, reinicie o Nginx:</p>
                 
                 <pre><code data-trim data-noescape>
 $ sudo systemctl restart nginx
@@ -247,17 +293,17 @@ $ sudo systemctl status nginx
      Loaded: loaded (/lib/systemd/system/nginx.service; enabled; preset: enabled)
      Active: active (running) since Fri 2025-11-07 20:44:31 UTC; 10s ago
                 </code></pre>
-                <p><strong>Sucesso!</strong> O servidor está configurado e rodando.</p>
+                <p><strong>Sucesso!</strong> Servidor pronto.</p>
             </section>
 
             <!-- Slide Final -->
             <section>
                 <h2>Fim!</h2>
                 <p>Tutorial de configuração do servidor concluído.</p>
+                <p>Agora você pode testar o acesso pelo navegador e pelo MySQL Workbench.</p>
             </section>
 
         </div>
-        
     </div>
 
     <!-- JS do Reveal.js -->
