@@ -19,9 +19,16 @@
             color: #eee; /* Cor de fonte principal clara */
         }
         
+        /* --- MUDANÇA AQUI --- */
+        /* Alinha todo o conteúdo do slide à esquerda por padrão */
+        .reveal .slides section {
+            text-align: left;
+        }
+        
         .reveal h1, .reveal h2, .reveal h3 {
             color: #77dd77; /* Verde IFRN (Claro) */
             font-weight: 600;
+            text-align: left; /* <-- ADICIONADO */
         }
         
         .reveal code {
@@ -47,8 +54,6 @@
             color: #bbb; /* Cor clara */
         }
         
-        /* Regra do Footer REMOVIDA */
-        
         /* Garante que links fiquem visíveis */
         .reveal a {
             color: #42a5f5;
@@ -71,7 +76,6 @@
                 <h1>Configurando um Servidor Web</h1>
                 <p>Nginx + MariaDB + phpMyAdmin</p>
                 <br>
-                <!-- <div class="slide-author">seu-nome</div> --> <!-- REMOVIDO -->
                 <div class="slide-institution">IFRN - Campus São Paulo do Potengi</div>
             </section>
 
@@ -254,7 +258,6 @@ $ sudo systemctl status nginx
 
         </div>
         
-        <!-- DIV do Footer REMOVIDA -->
     </div>
 
     <!-- JS do Reveal.js -->
