@@ -31,7 +31,7 @@
             text-align: left;
             font-size: 2.2em; /* Reduzido */
             line-height: 1.1;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             text-transform: none;
         }
         
@@ -40,7 +40,7 @@
             font-weight: 600;
             text-align: left;
             font-size: 1.5em; /* Reduzido */
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         
         .reveal h3 {
@@ -314,7 +314,8 @@ $ sudo systemctl status nginx
         Reveal.initialize({
             hash: true,
             plugins: [ RevealHighlight ],
-            slideNumber: true, // <-- Esta linha controla a numeração da página
+            slideNumber: true,
+            transition: 'none', // Remove a animação de transição (pula direto)
         });
     </script>
 </body>
