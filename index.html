@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
     <meta charset="utf-8">
-    <title>Tutorial: Configurando Servidor Web</title>
+    <title>Passo a passo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
@@ -209,7 +209,6 @@ $ sudo apt install phpmyadmin php-fpm php-mysql
                 </code></pre>
             </section>
             
-            <!-- SLIDE ATUALIZADO -->
             <section>
                 <h2>4. Instalação (Alertas de Prova)</h2>
                 <p>Durante a instalação, o `apt` fará duas perguntas cruciais:</p>
@@ -254,25 +253,29 @@ $ sudo systemctl stop apache2
                 <pre><code data-trim data-noescape>
 $ sudo nano /etc/nginx/sites-available/default
                 </code></pre>
-                <p>Dentro do bloco <code>server { ... }</code>, ajuste (ou descomente) assim:</p>
+                <p>Dentro do bloco <code>server { ... }</code>, **descomente** o bloco PHP e adicione a diretiva `index`:</p>
                 <pre><code class="nginx" data-trim data-noescape>
 # 1. Garanta que o PHP seja lido como index:
 index index.php index.html index.htm; 
 
-# 2. Descomente este bloco para processar PHP:
+# 2. Descomente este bloco para processar PHP (Exatamente como o professor mostrou):
+# pass PHP scripts to FastCGI server
+#
 location ~ \.php$ {
     include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/php8.2-fpm.sock; # CONFIRA A VERSÃO!
-    fastcgi_index index.php;
-    include fastcgi_params;
-}
+
+    # With php-fpm (or other unix sockets):
+    fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    # With php-cgi (or other tcp sockets):
+    # fastcgi_pass 127.0.0.1:9000;
+} # LEMBRE DESSE!!
 
 # 3. Bloco para o phpMyAdmin:
 location /phpmyadmin {
-    # Procura pelo link simbólico que será criado
     try_files $uri $uri/ =404; 
 }
                 </code></pre>
+                <p style="color: #ffeb3b; font-size: 0.8em; margin-top: 20px;">ATENÇÃO: ajuste a versão do PHP na linha do `php8.2-fpm.sock`, caso sua versão não seja a 8.2.</p>
             </section>
             
             <section>
@@ -313,9 +316,8 @@ $ sudo systemctl status nginx
             hash: true,
             plugins: [ RevealHighlight ],
             slideNumber: true,
-            transition: 'none', // Remove a animação de transição (pula direto)
+            transition: 'none',
         });
     </script>
 </body>
 </html>
-
