@@ -5,11 +5,8 @@
     <title>Tutorial: Configurando Servidor Web</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- CSS do Reveal.js (Estilo dos slides) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
-    <!-- Tema "Simple" (Similar ao do professor) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css">
-    <!-- CSS para Destaque de Código (Tema Escuro) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github-dark.min.css">
     
     <style>
@@ -95,7 +92,6 @@
     <div class="reveal">
         <div class="slides">
 
-            <!-- Slide de Título -->
             <section>
                 <h1>Configurando um Servidor Web</h1>
                 <p>Nginx + MariaDB + phpMyAdmin + Acesso Remoto</p>
@@ -103,7 +99,6 @@
                 <div class="slide-institution">IFRN - Campus São Paulo do Potengi</div>
             </section>
 
-            <!-- Slide 1: Acesso SSH (Keygen/View) -->
             <section>
                 <h2>1. Acesso SSH (Máquina Local)</h2>
                 <p>Gerar a chave:</p>
@@ -117,7 +112,6 @@ PS C:\Users\...> cat .\.ssh\id_ed25519.pub
                 </code></pre>
             </section>
 
-            <!-- Slide 2: Acesso SSH (Conexão) -->
             <section>
                 <h2>1. Acesso SSH (Conexão)</h2>
                 <p>Conectar ao servidor remoto:</p>
@@ -128,7 +122,6 @@ PS C:\Users\...> ssh nome-da-chave@ip-externo-da-vm
                 <p>Conexão estabelecida com a instância Debian.</p>
             </section>
 
-            <!-- Slide: Alerta de Segurança SSH -->
             <section>
                 <h2>1. Acesso SSH (Primeira Conexão)</h2>
                 <p>Na primeira vez, o SSH pedirá para confirmar a identidade do servidor ("Fingerprint"):</p>
@@ -144,7 +137,6 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])?
                 <p><small>Isso salvará a identidade do servidor no seu computador para futuras conexões seguras.</small></p>
             </section>
             
-            <!-- Slide 3: Instalação Básica -->
             <section>
                 <h2>2. Instalação dos Pacotes</h2>
                 <p>Primeiro, atualize e instale o servidor web e o banco de dados:</p>
@@ -154,7 +146,6 @@ $ sudo apt install nginx mariadb-server
                 </code></pre>
             </section>
 
-            <!-- Slide 4: Segurança MariaDB -->
             <section>
                 <h2>3. MariaDB (Instalação Segura)</h2>
                 <p>Executar o script de segurança:</p>
@@ -177,7 +168,6 @@ All done!
                 </code></pre>
             </section>
 
-            <!-- Slide 5: Configuração Remota 1 -->
             <section>
                 <h2>3. MariaDB (Acesso Remoto 1)</h2>
                 <p>Para acessar via Workbench, precisamos permitir conexões externas.</p>
@@ -194,7 +184,6 @@ bind-address = 0.0.0.0
                 <p><small>(Isso permite que o banco "escute" conexões de fora)</small></p>
             </section>
 
-            <!-- Slide 6: Configuração Remota 2 -->
             <section>
                 <h2>3. MariaDB (Acesso Remoto 2)</h2>
                 <p>Entre no banco e crie um usuário remoto:</p>
@@ -212,32 +201,53 @@ $ sudo systemctl restart mariadb
                 </code></pre>
             </section>
             
-            <!-- Slide 7: Instalação PHP -->
             <section>
                 <h2>4. Instalação (PHP & phpMyAdmin)</h2>
-                <p>Instalar os pacotes necessários:</p>
+                <p>Instale os pacotes necessários:</p>
                 <pre><code data-trim data-noescape>
 $ sudo apt install phpmyadmin php-fpm php-mysql
                 </code></pre>
-                <p><small>Nota: Se perguntar servidor web, deixe em branco (TAB -> OK). Se perguntar dbconfig, sim.</small></p>
+            </section>
+            
+            <!-- SLIDE ATUALIZADO -->
+            <section>
+                <h2>4. Instalação (Alertas de Prova)</h2>
+                <p>Durante a instalação, o `apt` fará duas perguntas cruciais:</p>
+                
+                <h3 style="color: #ffeb3b; font-size: 1.0em;">1. Seleção do Servidor Web:</h3>
+                <pre><code data-trim data-noescape>
+Web server to reconfigure automatically:
+[ ] apache2
+[ ] lighttpd
+<Ok>
+                </code></pre>
+                <p><strong>NÃO MARQUE NENHUM!</strong> Use **TAB** para selecionar **`<Ok>`** e pressione **ENTER**.</p>
+
+                <h3 style="color: #ffeb3b; font-size: 1.0em; margin-top: 25px;">2. Configuração do Banco de Dados:</h3>
+                <pre><code data-trim data-noescape>
+Configure database for phpmyadmin with dbconfig-common?
+<Yes>
+<No>
+                </code></pre>
+                <p>Selecione **`<Yes>`** e pressione **ENTER**. (Isso criará o banco de dados e o usuário `phpmyadmin` automaticamente).</p>
             </section>
 
-            <!-- Slide 8: O Problema (Conflito) -->
             <section>
                 <h2>5. Resolução de Conflitos</h2>
-                <p><strong>O Problema:</strong> O <code>apache2</code> tenta usar a porta 80. Pare e desabilite:</p>
+                <p><strong>O Problema:</strong> O <code>apache2</code> tenta usar a porta 80.</p>
+                <pre><code data-trim data-noescape>
+$ sudo systemctl status apache2
+...
+     Active: failed (Result: exit-code) 
+...
+                </code></pre>
+                <p><strong>A Solução:</strong> Parar e desabilitar o Apache2.</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl disable apache2
 $ sudo systemctl stop apache2
                 </code></pre>
-                <p><strong>Verificar Nginx</strong>:</p>
-                <pre><code data-trim data-noescape>
-$ sudo systemctl status nginx
-     Active: active (running)
-                </code></pre>
             </section>
 
-            <!-- Slide 9: Configuração do Nginx (Corpo da Configuração) -->
             <section>
                 <h2>6. Configuração do Nginx (Arquivo)</h2>
                 <p>Edite o arquivo <code>default</code> e adicione/descomente as linhas:</p>
@@ -265,7 +275,6 @@ location /phpmyadmin {
                 </code></pre>
             </section>
             
-            <!-- Slide 10: Link Simbólico (IMPORTANTE) -->
             <section>
                 <h2>6. Configuração do Nginx (Link)</h2>
                 <p>Crie um link simbólico para que o Nginx encontre o phpMyAdmin:</p>
@@ -275,7 +284,6 @@ $ sudo ln -s /usr/share/phpmyadmin /var/www/html/phpmyadmin
                 <p><small>Isso cria um "atalho" na pasta do site (<code>/var/www/html</code>) que aponta para a instalação original (<code>/usr/share/phpmyadmin</code>).</small></p>
             </section>
 
-            <!-- Slide 11: Passos Finais -->
             <section>
                 <h2>6. Configuração do Nginx (Fim)</h2>
                 <p>Teste a sintaxe e reinicie o Nginx para aplicar as mudanças:</p>
@@ -285,10 +293,9 @@ $ sudo nginx -t
 $ sudo systemctl restart nginx
 $ sudo systemctl status nginx
                 </code></pre>
-                <p><strong>Sucesso!</strong> Servidor pronto. Acesse phpMyAdmin via navegador.</p>
+                <p><strong>Sucesso!</strong> Servidor pronto.</p>
             </section>
 
-            <!-- Slide Final -->
             <section>
                 <h2>Fim!</h2>
                 <p>Tutorial de configuração do servidor concluído.</p>
@@ -298,7 +305,6 @@ $ sudo systemctl status nginx
         </div>
     </div>
 
-    <!-- JS do Reveal.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/highlight/highlight.min.js"></script>
     <script>
