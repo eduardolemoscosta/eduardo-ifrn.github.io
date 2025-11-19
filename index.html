@@ -218,13 +218,6 @@ $ sudo systemctl restart mariadb
                 <p>Instalar os pacotes necessários:</p>
                 <pre><code data-trim data-noescape>
 $ sudo apt install phpmyadmin php-fpm php-mysql
-Reading package lists... Done
-Building dependency tree... Done
-...
-0 upgraded, 97 newly installed, 0 to remove and 5 not upgraded.
-Need to get 33.8 MB of archives.
-After this operation, 151 MB of additional disk space will be used.
-Do you want to continue? [Y/n] y
                 </code></pre>
                 <p><small>Nota: Se perguntar servidor web, deixe em branco (TAB -> OK). Se perguntar dbconfig, sim.</small></p>
             </section>
@@ -232,22 +225,7 @@ Do you want to continue? [Y/n] y
             <!-- Slide 8: O Problema (Conflito) -->
             <section>
                 <h2>5. Resolução de Conflitos</h2>
-                <p><strong>O Problema:</strong> O <code>apache2</code> tenta usar a porta 80.</p>
-                <pre><code data-trim data-noescape>
-$ sudo systemctl status apache2
-
-● apache2.service - The Apache HTTP Server
-     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; ...)
-     Active: failed (Result: exit-code) ...
-...
-Nov 07 19:42:25 ... apachectl[381]: (98)Address already in use: AH00072: make_sock: could not bind to address ...
-                </code></pre>
-            </section>
-            
-            <!-- Slide 9: A Solução (Desabilitar Apache) -->
-            <section>
-                <h2>5. Resolução de Conflitos</h2>
-                <p><strong>A Solução:</strong> Parar e desabilitar o Apache2.</p>
+                <p><strong>O Problema:</strong> O <code>apache2</code> tenta usar a porta 80. Pare e desabilite:</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl disable apache2
 $ sudo systemctl stop apache2
@@ -255,45 +233,59 @@ $ sudo systemctl stop apache2
                 <p><strong>Verificar Nginx</strong>:</p>
                 <pre><code data-trim data-noescape>
 $ sudo systemctl status nginx
-● nginx.service - A high performance web server and a reverse proxy server
-     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; ...)
-     Active: active (running) since Fri 2025-11-07 19:42:23 UTC; 45min ago
+     Active: active (running)
                 </code></pre>
             </section>
 
-            <!-- Slide 10: A Correção (Edição) -->
+            <!-- Slide 9: Configuração do Nginx (Corpo da Configuração) -->
             <section>
-                <h2>6. Configuração do Nginx</h2>
-                <p>O comando correto para editar o arquivo:</p>
+                <h2>6. Configuração do Nginx (Arquivo)</h2>
+                <p>Edite o arquivo <code>default</code> e adicione/descomente as linhas:</p>
                 <pre><code data-trim data-noescape>
 $ sudo nano /etc/nginx/sites-available/default
                 </code></pre>
-                <p>(Dentro deste arquivo, você adiciona a configuração para o PHP e a <code>location /phpmyadmin</code>)</p>
+                <p>Dentro do bloco <code>server { ... }</code>, ajuste (ou descomente) assim:</p>
+                <pre><code class="nginx" data-trim data-noescape>
+# 1. Garanta que o PHP seja lido como index:
+index index.php index.html index.htm; 
+
+# 2. Descomente este bloco para processar PHP:
+location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php8.2-fpm.sock; # CONFIRA A VERSÃO!
+    fastcgi_index index.php;
+    include fastcgi_params;
+}
+
+# 3. Bloco para o phpMyAdmin:
+location /phpmyadmin {
+    # Procura pelo link simbólico que será criado
+    try_files $uri $uri/ =404; 
+}
+                </code></pre>
             </section>
             
-            <!-- Slide 11: Link Simbólico (IMPORTANTE) -->
+            <!-- Slide 10: Link Simbólico (IMPORTANTE) -->
             <section>
                 <h2>6. Configuração do Nginx (Link)</h2>
-                <p>Para facilitar o acesso ao phpMyAdmin, crie um link simbólico:</p>
+                <p>Crie um link simbólico para que o Nginx encontre o phpMyAdmin:</p>
                 <pre><code data-trim data-noescape>
 $ sudo ln -s /usr/share/phpmyadmin /var/www/html/phpmyadmin
                 </code></pre>
-                <p><small>Isso cria um "atalho" na pasta do site que aponta para a instalação do phpMyAdmin.</small></p>
+                <p><small>Isso cria um "atalho" na pasta do site (<code>/var/www/html</code>) que aponta para a instalação original (<code>/usr/share/phpmyadmin</code>).</small></p>
             </section>
 
-            <!-- Slide 12: Passos Finais -->
+            <!-- Slide 11: Passos Finais -->
             <section>
                 <h2>6. Configuração do Nginx (Fim)</h2>
-                <p>Após salvar no <code>nano</code> e criar o link, reinicie o Nginx:</p>
+                <p>Teste a sintaxe e reinicie o Nginx para aplicar as mudanças:</p>
                 
                 <pre><code data-trim data-noescape>
+$ sudo nginx -t
 $ sudo systemctl restart nginx
 $ sudo systemctl status nginx
-● nginx.service - A high performance web server and a reverse proxy server
-     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; preset: enabled)
-     Active: active (running) since Fri 2025-11-07 20:44:31 UTC; 10s ago
                 </code></pre>
-                <p><strong>Sucesso!</strong> Servidor pronto.</p>
+                <p><strong>Sucesso!</strong> Servidor pronto. Acesse phpMyAdmin via navegador.</p>
             </section>
 
             <!-- Slide Final -->
@@ -320,3 +312,4 @@ $ sudo systemctl status nginx
     </script>
 </body>
 </html>
+
