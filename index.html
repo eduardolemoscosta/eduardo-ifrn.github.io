@@ -1,24 +1,104 @@
-<!doctype html>
-<html lang="pt">
-
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-    <meta charset="utf-8">
-    <title>Site do Eduardo</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.5.1/styles/github-dark.min.css">
+    <meta charset="UTF-8">
+    <title>Resumo Django - Prova Final</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: #e0e0e0; line-height: 1.4; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px; }
+        h2 { color: #4caf50; margin-top: 0; border-bottom: 1px solid #333; }
+        pre { background: #000; padding: 10px; border-radius: 5px; overflow-x: auto; color: #9cdcfe; font-size: 13px; }
+        .important { color: #ff5252; font-weight: bold; }
+    </style>
 </head>
+<body>
 
-<body style="background-color: #f0f0f0; font-family: sans-serif; text-align: center; padding-top: 50px;">
+    <h1>Guia de Sobrevivência Django </h1>
 
-    <h1>Bem-vindo ao Repositório do Eduardo</h1>
-    
-    <p>Sou estudante de Informática para Internet no IFRN - Campus São Paulo do Potengi.</p>
-    
-    <p>Este site está em construção.</p>
+    <div class="grid">
+        <div class="card">
+            <h2>1. Views (Logic)</h2>
+            <pre>
+# IMPORTANTE NO TOPO:
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import SeuModelo
+from .forms import SeuModeloForm
+
+@login_required
+def listar(request):
+    dados = SeuModelo.objects.all()
+    return render(request, 'index.html', {'dados': dados})
+
+@login_required
+def criar(request):
+    form = SeuModeloForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('listar')
+    return render(request, 'form.html', {'form': form})
+
+@login_required
+def editar(request, id):
+    obj = get_object_or_404(SeuModelo, pk=id)
+    form = SeuModeloForm(request.POST or None, instance=obj)
+    if form.is_valid():
+        form.save()
+        return redirect('listar')
+    return render(request, 'form.html', {'form': form})
+            </pre>
+        </div>
+
+        <div class="card">
+            <h2>2. Templates (HTML)</h2>
+            <pre>
+&lt;!-- index.html (Listagem) --&gt;
+{% for item in dados %}
+    {{ item.nome }}
+    &lt;a href="{% url 'editar' item.id %}"&gt;Editar&lt;/a&gt;
+{% endfor %}
+
+&lt;!-- form.html (Cadastro/Edit) --&gt;
+&lt;form method="POST"&gt;
+    {% csrf_token %}
+    {{ form.as_p }}
+    &lt;button type="submit"&gt;Salvar&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;!-- Proteção no HTML --&gt;
+{% if user.is_authenticated %}
+    &lt;p&gt;Bem-vindo, {{ user.username }}&lt;/p&gt;
+{% endif %}
+            </pre>
+        </div>
+
+        <div class="card">
+            <h2>3. URLs (Roteamento)</h2>
+            <pre>
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.listar, name='listar'),
+    path('novo/', views.criar, name='criar'),
+    path('editar/&lt;int:id&gt;/', views.editar, name='editar'),
+    path('deletar/&lt;int:id&gt;/', views.excluir, name='excluir'),
+]
+            </pre>
+        </div>
+
+        <div class="card">
+            <h2>4. Checklist de Comandos</h2>
+            <ul>
+                <li><code class="important">python manage.py makemigrations</code></li>
+                <li><code class="important">python manage.py migrate</code></li>
+                <li><code class="important">python manage.py runserver</code></li>
+                <li><b>Login URL:</b> No settings.py: <br><code>LOGIN_REDIRECT_URL = 'listar'</code></li>
+            </ul>
+            <p class="important"> ☢️ Não esqueça o {% csrf_token %} em todos os forms!</p>
+        </div>
+    </div>
 
 </body>
-
 </html>
