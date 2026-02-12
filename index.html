@@ -2,18 +2,24 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Slides de Consulta - Eduardo</title>
+    <title>Slides de Consulta - Eduardo IFRN</title>
     <style>
         * { box-sizing: border-box; }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             margin: 0; background: #121212; color: #e0e0e0; 
+            overflow: hidden; /* Impede scroll comum para focar no clique */
+        }
+        .slide-container {
+            display: flex;
+            width: 400vw; /* 4 slides */
+            height: 100vh;
+            transition: transform 0.5s ease-in-out;
         }
         .slide {
-            height: 100vh;
             width: 100vw;
+            height: 100vh;
             padding: 40px;
-            border-bottom: 5px solid #333;
             display: flex;
             flex-direction: column;
         }
@@ -25,6 +31,7 @@
             font-family: monospace;
             font-size: 1.5em;
             color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .content {
             background: #1e1e1e;
@@ -39,30 +46,52 @@
             padding: 20px; 
             border-radius: 5px; 
             color: #9cdcfe; 
-            font-size: 1.2em;
-            line-height: 1.5;
+            font-size: 1.1em;
+            line-height: 1.4;
             margin: 0;
         }
-        .comment { color: #6a9955; }
+        /* Controles invisíveis nas extremidades */
+        .nav-zone {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 10%;
+            z-index: 100;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: rgba(255,255,255,0.03);
+        }
+        .nav-zone:hover { opacity: 1; }
+        .left-zone { left: 0; }
+        .right-zone { right: 0; }
+        .hint { color: #555; font-size: 0.8em; position: fixed; bottom: 10px; width: 100%; text-align: center; }
         .keyword { color: #569cd6; }
-        .important { color: #f44336; font-weight: bold; }
-        .tip { background: #333; padding: 10px; margin-top: 10px; border-left: 4px solid #ffeb3b; color: #fff; }
+        .comment { color: #6a9955; }
     </style>
 </head>
 <body>
 
-    <section class="slide">
-        <div class="file-header">📄 views.py</div>
-        <div class="content">
-            <pre>
+    <div class="nav-zone left-zone" onclick="moveSlide(-1)">◀ VOLTAR</div>
+    <div class="nav-zone right-zone" onclick="moveSlide(1)">AVANÇAR ▶</div>
+
+    <div class="slide-container" id="container">
+        
+        <section class="slide">
+            <div class="file-header">📄 views.py (Lógica CRUD)</div>
+            <div class="content">
+                <pre>
 <span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render, redirect, get_object_or_404
 <span class="keyword">from</span> django.contrib.auth.decorators <span class="keyword">import</span> login_required
 <span class="keyword">from</span> .models <span class="keyword">import</span> SeuModelo
 <span class="keyword">from</span> .forms <span class="keyword">import</span> SeuModeloForm
 
-<span class="comment"># CREATE / EDIT (O segredo é o 'instance')</span>
 <span class="keyword">@login_required</span>
-<span class="keyword">def</span> salvar(request, id=None):
+<span class="keyword">def</span> salvar(request, id=<span class="keyword">None</span>):
+    <span class="comment"># Se vier ID, edita. Se não, cria novo.</span>
     obj = get_object_or_404(SeuModelo, pk=id) <span class="keyword">if</span> id <span class="keyword">else</span> <span class="keyword">None</span>
     form = SeuModeloForm(request.POST <span class="keyword">or</span> <span class="keyword">None</span>, instance=obj)
     
@@ -73,32 +102,105 @@
             
     <span class="keyword">return</span> render(request, <span class="keyword">'form.html'</span>, {<span class="keyword">'form'</span>: form})
 
-<span class="comment"># DELETE</span>
-<span class="keyword">@login_required</span>
 <span class="keyword">def</span> excluir(request, id):
-    obj = get_object_or_404(SeuModelo, pk=id)
-    obj.delete()
+    get_object_or_404(SeuModelo, pk=id).delete()
     <span class="keyword">return</span> redirect(<span class="keyword">'listagem'</span>)
-            </pre>
-        </div>
-    </section>
+                </pre>
+            </div>
+        </section>
 
-    <section class="slide">
-        <div class="file-header">📄 urls.py (do app)</div>
-        <div class="content">
-            <pre>
+        <section class="slide">
+            <div class="file-header">📄 urls.py (Rotas)</div>
+            <div class="content">
+                <pre>
 <span class="keyword">from</span> django.urls <span class="keyword">import</span> path
 <span class="keyword">from</span> . <span class="keyword">import</span> views
 
 urlpatterns = [
     path(<span class="keyword">''</span>, views.listagem, name=<span class="keyword">'listagem'</span>),
     path(<span class="keyword">'novo/'</span>, views.salvar, name=<span class="keyword">'criar'</span>),
+    <span class="comment"># Importante: o &lt;int:id&gt; deve bater com o nome na view</span>
     path(<span class="keyword">'editar/&lt;int:id&gt;/'</span>, views.salvar, name=<span class="keyword">'editar'</span>),
     path(<span class="keyword">'excluir/&lt;int:id&gt;/'</span>, views.excluir, name=<span class="keyword">'excluir'</span>),
 ]
-            </pre>
-            <div class="tip">Nota: Usei a mesma view 'salvar' para criar e editar para ganhar tempo!</div>
-        </div>
+                </pre>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="file-header">📄 index.html (Listagem e Auth)</div>
+            <div class="content">
+                <pre>
+<span class="comment">&lt;!-- No index.html do seu repositório --&gt;</span>
+{% <span class="keyword">if</span> user.is_authenticated %}
+    &lt;p&gt;Usuário: {{ user.username }}&lt;/p&gt;
+    &lt;a href="{% url 'logout' %}"&gt;Sair&lt;/a&gt;
+{% <span class="keyword">endif</span> %}
+
+{% <span class="keyword">for</span> item <span class="keyword">in</span> dados %}
+    {{ item.nome }}
+    &lt;a href="{% url 'editar' item.id %}"&gt;Editar&lt;/a&gt;
+    
+    <span class="comment">&lt;!-- Autorização nível Admin --&gt;</span>
+    {% <span class="keyword">if</span> user.is_superuser %}
+        &lt;a href="{% url 'excluir' item.id %}"&gt;Excluir&lt;/a&gt;
+    {% <span class="keyword">endif</span> %}
+{% <span class="keyword">endfor</span> %}
+
+<span class="comment">&lt;!-- No form.html --&gt;</span>
+&lt;form method="POST"&gt;
+    {% csrf_token %}
+    {{ form.as_p }}
+    &lt;button type="submit"&gt;Salvar&lt;/button&gt;
+&lt;/form&gt;
+                </pre>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="file-header">📄 settings.py & Comandos</div>
+            <div class="content">
+                <pre>
+<span class="comment"># No final do settings.py</span>
+LOGIN_URL = <span class="keyword">'login'</span>
+LOGIN_REDIRECT_URL = <span class="keyword">'listagem'</span>
+LOGOUT_REDIRECT_URL = <span class="keyword">'login'</span>
+
+<span class="comment"># Comandos de Terminal</span>
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+
+<span class="comment"># Se precisar criar admin rápido:</span>
+python manage.py createsuperuser
+                </pre>
+            </div>
+        </section>
+    </div>
+
+    <div class="hint">Clique nas bordas laterais para navegar</div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 4;
+        const container = document.getElementById('container');
+
+        function moveSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+            
+            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+        }
+
+        // Suporte a setas do teclado também
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowRight") moveSlide(1);
+            if (e.key === "ArrowLeft") moveSlide(-1);
+        });
+    </script>
+</body>
+</html>
     </section>
 
     <section class="slide">
