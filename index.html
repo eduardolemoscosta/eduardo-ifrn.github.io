@@ -2,103 +2,151 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Resumo Django - Prova Final</title>
+    <title>Slides de Consulta - Eduardo</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #e0e0e0; line-height: 1.4; padding: 20px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: #1e1e1e; border: 1px solid #333; padding: 15px; border-radius: 8px; }
-        h2 { color: #4caf50; margin-top: 0; border-bottom: 1px solid #333; }
-        pre { background: #000; padding: 10px; border-radius: 5px; overflow-x: auto; color: #9cdcfe; font-size: 13px; }
-        .important { color: #ff5252; font-weight: bold; }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; background: #121212; color: #e0e0e0; 
+        }
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            padding: 40px;
+            border-bottom: 5px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+        .file-header {
+            background: #2d2d2d;
+            padding: 15px 25px;
+            border-radius: 10px 10px 0 0;
+            border-left: 5px solid #4caf50;
+            font-family: monospace;
+            font-size: 1.5em;
+            color: #fff;
+        }
+        .content {
+            background: #1e1e1e;
+            flex-grow: 1;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            border: 1px solid #333;
+            overflow-y: auto;
+        }
+        pre { 
+            background: #000; 
+            padding: 20px; 
+            border-radius: 5px; 
+            color: #9cdcfe; 
+            font-size: 1.2em;
+            line-height: 1.5;
+            margin: 0;
+        }
+        .comment { color: #6a9955; }
+        .keyword { color: #569cd6; }
+        .important { color: #f44336; font-weight: bold; }
+        .tip { background: #333; padding: 10px; margin-top: 10px; border-left: 4px solid #ffeb3b; color: #fff; }
     </style>
 </head>
 <body>
 
-    <h1>Guia de Sobrevivência Django </h1>
-
-    <div class="grid">
-        <div class="card">
-            <h2>1. Views (Logic)</h2>
+    <section class="slide">
+        <div class="file-header">📄 views.py</div>
+        <div class="content">
             <pre>
-# IMPORTANTE NO TOPO:
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import SeuModelo
-from .forms import SeuModeloForm
+<span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render, redirect, get_object_or_404
+<span class="keyword">from</span> django.contrib.auth.decorators <span class="keyword">import</span> login_required
+<span class="keyword">from</span> .models <span class="keyword">import</span> SeuModelo
+<span class="keyword">from</span> .forms <span class="keyword">import</span> SeuModeloForm
 
-@login_required
-def listar(request):
-    dados = SeuModelo.objects.all()
-    return render(request, 'index.html', {'dados': dados})
+<span class="comment"># CREATE / EDIT (O segredo é o 'instance')</span>
+<span class="keyword">@login_required</span>
+<span class="keyword">def</span> salvar(request, id=None):
+    obj = get_object_or_404(SeuModelo, pk=id) <span class="keyword">if</span> id <span class="keyword">else</span> <span class="keyword">None</span>
+    form = SeuModeloForm(request.POST <span class="keyword">or</span> <span class="keyword">None</span>, instance=obj)
+    
+    <span class="keyword">if</span> request.method == <span class="keyword">'POST'</span>:
+        <span class="keyword">if</span> form.is_valid():
+            form.save()
+            <span class="keyword">return</span> redirect(<span class="keyword">'listagem'</span>)
+            
+    <span class="keyword">return</span> render(request, <span class="keyword">'form.html'</span>, {<span class="keyword">'form'</span>: form})
 
-@login_required
-def criar(request):
-    form = SeuModeloForm(request.POST or None)
-    if form.is_valid():
-        form.save()
-        return redirect('listar')
-    return render(request, 'form.html', {'form': form})
-
-@login_required
-def editar(request, id):
+<span class="comment"># DELETE</span>
+<span class="keyword">@login_required</span>
+<span class="keyword">def</span> excluir(request, id):
     obj = get_object_or_404(SeuModelo, pk=id)
-    form = SeuModeloForm(request.POST or None, instance=obj)
-    if form.is_valid():
-        form.save()
-        return redirect('listar')
-    return render(request, 'form.html', {'form': form})
+    obj.delete()
+    <span class="keyword">return</span> redirect(<span class="keyword">'listagem'</span>)
             </pre>
         </div>
+    </section>
 
-        <div class="card">
-            <h2>2. Templates (HTML)</h2>
+    <section class="slide">
+        <div class="file-header">📄 urls.py (do app)</div>
+        <div class="content">
             <pre>
-&lt;!-- index.html (Listagem) --&gt;
-{% for item in dados %}
-    {{ item.nome }}
-    &lt;a href="{% url 'editar' item.id %}"&gt;Editar&lt;/a&gt;
-{% endfor %}
-
-&lt;!-- form.html (Cadastro/Edit) --&gt;
-&lt;form method="POST"&gt;
-    {% csrf_token %}
-    {{ form.as_p }}
-    &lt;button type="submit"&gt;Salvar&lt;/button&gt;
-&lt;/form&gt;
-
-&lt;!-- Proteção no HTML --&gt;
-{% if user.is_authenticated %}
-    &lt;p&gt;Bem-vindo, {{ user.username }}&lt;/p&gt;
-{% endif %}
-            </pre>
-        </div>
-
-        <div class="card">
-            <h2>3. URLs (Roteamento)</h2>
-            <pre>
-from django.urls import path
-from . import views
+<span class="keyword">from</span> django.urls <span class="keyword">import</span> path
+<span class="keyword">from</span> . <span class="keyword">import</span> views
 
 urlpatterns = [
-    path('', views.listar, name='listar'),
-    path('novo/', views.criar, name='criar'),
-    path('editar/&lt;int:id&gt;/', views.editar, name='editar'),
-    path('deletar/&lt;int:id&gt;/', views.excluir, name='excluir'),
+    path(<span class="keyword">''</span>, views.listagem, name=<span class="keyword">'listagem'</span>),
+    path(<span class="keyword">'novo/'</span>, views.salvar, name=<span class="keyword">'criar'</span>),
+    path(<span class="keyword">'editar/&lt;int:id&gt;/'</span>, views.salvar, name=<span class="keyword">'editar'</span>),
+    path(<span class="keyword">'excluir/&lt;int:id&gt;/'</span>, views.excluir, name=<span class="keyword">'excluir'</span>),
 ]
             </pre>
+            <div class="tip">Nota: Usei a mesma view 'salvar' para criar e editar para ganhar tempo!</div>
         </div>
+    </section>
 
-        <div class="card">
-            <h2>4. Checklist de Comandos</h2>
-            <ul>
-                <li><code class="important">python manage.py makemigrations</code></li>
-                <li><code class="important">python manage.py migrate</code></li>
-                <li><code class="important">python manage.py runserver</code></li>
-                <li><b>Login URL:</b> No settings.py: <br><code>LOGIN_REDIRECT_URL = 'listar'</code></li>
-            </ul>
-            <p class="important"> ☢️ Não esqueça o {% csrf_token %} em todos os forms!</p>
+    <section class="slide">
+        <div class="file-header">📄 index.html</div>
+        <div class="content">
+            <pre>
+<span class="comment">&lt;!-- Verificação de Autenticação --&gt;</span>
+{% <span class="keyword">if</span> user.is_authenticated %}
+    &lt;p&gt;Usuário: {{ user.username }}&lt;/p&gt;
+    &lt;a href="{% url 'logout' %}"&gt;Sair&lt;/a&gt;
+{% <span class="keyword">else</span> %}
+    &lt;a href="{% url 'login' %}"&gt;Entrar&lt;/a&gt;
+{% <span class="keyword">endif</span> %}
+
+<span class="comment">&lt;!-- Loop de Dados --&gt;</span>
+{% <span class="keyword">for</span> item <span class="keyword">in</span> dados %}
+    {{ item.nome }}
+    <span class="comment">&lt;!-- Autorização: Só admin vê botão de excluir --&gt;</span>
+    {% <span class="keyword">if</span> user.is_superuser %}
+        &lt;a href="{% url 'excluir' item.id %}"&gt;Excluir&lt;/a&gt;
+    {% <span class="keyword">endif</span> %}
+{% <span class="keyword">endfor</span> %}
+            </pre>
         </div>
-    </div>
+    </section>
+
+    <section class="slide">
+        <div class="file-header">📄 forms.py & settings.py</div>
+        <div class="content">
+            <pre>
+<span class="comment"># forms.py</span>
+<span class="keyword">class</span> SeuModeloForm(forms.ModelForm):
+    <span class="keyword">class</span> Meta:
+        model = SeuModelo
+        fields = <span class="keyword">'__all__'</span>
+
+<span class="comment"># settings.py (Final do arquivo)</span>
+LOGIN_URL = <span class="keyword">'login'</span>
+LOGIN_REDIRECT_URL = <span class="keyword">'listagem'</span>
+LOGOUT_REDIRECT_URL = <span class="keyword">'login'</span>
+            </pre>
+            <div class="tip">
+                <b>COMANDOS:</b><br>
+                python manage.py makemigrations<br>
+                python manage.py migrate
+            </div>
+        </div>
+    </section>
 
 </body>
 </html>
