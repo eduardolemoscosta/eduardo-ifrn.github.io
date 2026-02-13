@@ -2,20 +2,23 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <title>Consulta Django - Eduardo</title>
     <style>
-        body { font-family: monospace; background: #000; color: #fff; padding: 20px; }
-        .slide { width: 100vw; height: 100vh; display: none; }
+        body { font-family: monospace; background: #000; color: #fff; margin: 0; overflow: hidden; }
+        .slide { display: none; width: 100vw; height: 100vh; padding: 40px; box-sizing: border-box; }
         .active { display: block; }
-        .header { color: #4caf50; font-size: 2em; margin-bottom: 20px; border-bottom: 1px solid #333; }
-        pre { background: #111; padding: 20px; border: 1px solid #444; font-size: 1.4em; cursor: pointer; }
-        .nav { position: fixed; top: 0; bottom: 0; width: 10%; z-index: 10; cursor: pointer; }
-        .right { right: 0; } .left { left: 0; }
+        .header { color: #4caf50; font-size: 2.5em; margin-bottom: 20px; border-bottom: 2px solid #333; }
+        pre { background: #111; padding: 25px; border: 1px solid #444; font-size: 1.5em; overflow: auto; }
+        .nav-area { position: fixed; top: 0; bottom: 0; width: 15%; z-index: 100; cursor: pointer; }
+        .nav-right { right: 0; }
+        .nav-left { left: 0; }
+        .counter { position: fixed; bottom: 20px; right: 20px; color: #555; font-size: 1.2em; }
     </style>
 </head>
 <body>
 
-    <div class="nav left" onclick="move(-1)"></div>
-    <div class="nav right" onclick="move(1)"></div>
+    <div class="nav-area nav-left" onclick="move(-1)"></div>
+    <div class="nav-area nav-right" onclick="move(1)"></div>
 
     <div class="slide active">
         <div class="header">forms.py</div>
@@ -108,14 +111,26 @@ LOGIN_REDIRECT_URL = 'url_da_lista'
 LOGOUT_REDIRECT_URL = 'login'</pre>
     </div>
 
+    <div class="counter" id="page-num">1 / 6</div>
+
     <script>
-        let cur = 0;
+        let current = 0;
         const slides = document.querySelectorAll('.slide');
+        const num = document.getElementById('page-num');
+
         function move(dir) {
-            slides[cur].classList.remove('active');
-            cur = (cur + dir + slides.length) % slides.length;
-            slides[cur].classList.add('active');
+            slides[current].classList.remove('active');
+            current += dir;
+            if (current < 0) current = 0;
+            if (current >= slides.length) current = slides.length - 1;
+            slides[current].classList.add('active');
+            num.innerText = `${current + 1} / ${slides.length}`;
         }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "ArrowRight") move(1);
+            if (e.key === "ArrowLeft") move(-1);
+        });
     </script>
 </body>
 </html>
