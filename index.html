@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Consulta Django - Eduardo</title>
+    <title>Consulta Django </title>
     <style>
         body { 
             font-family: monospace; 
@@ -30,12 +30,10 @@
             user-select: text; 
             cursor: text;
         }
-        /* BOTÕES DE NAVEGAÇÃO DIMINUÍDOS PARA 5% */
         .nav-area { position: fixed; top: 0; bottom: 0; width: 5%; z-index: 100; cursor: pointer; }
         .nav-right { right: 0; }
         .nav-left { left: 0; }
-        .nav-area:hover { background: rgba(255, 255, 255, 0.05); } /* Leve destaque ao passar o mouse */
-        
+        .nav-area:hover { background: rgba(255, 255, 255, 0.05); }
         .counter { position: fixed; bottom: 20px; right: 20px; color: #555; font-size: 1.2em; }
     </style>
 </head>
@@ -130,13 +128,13 @@ urlpatterns = [
     &lt;button type="submit"&gt;Salvar&lt;/button&gt;
 &lt;/form&gt;
 
-# settings.py (No final do arquivo do PROJETO)
+# settings.py (Na pasta do PROJETO)
 LOGIN_REDIRECT_URL = 'url_da_lista'
 LOGOUT_REDIRECT_URL = 'login'</pre>
     </div>
 
     <div class="slide">
-        <div class="header">Comandos de Terminal <span class="subheader">(Rodar na pasta raiz do projeto)</span></div>
+        <div class="header">Comandos de Terminal <span class="subheader">(Raiz do projeto)</span></div>
         <pre>
 python manage.py makemigrations
 python manage.py migrate
