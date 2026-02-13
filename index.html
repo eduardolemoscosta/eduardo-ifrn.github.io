@@ -4,11 +4,31 @@
     <meta charset="UTF-8">
     <title>Consulta Django - Eduardo</title>
     <style>
-        body { font-family: monospace; background: #000; color: #fff; margin: 0; overflow: hidden; }
+        body { 
+            font-family: monospace; 
+            background: #000; 
+            color: #fff; 
+            margin: 0; 
+            overflow: hidden; 
+            user-select: none; /* Bloqueia seleção no corpo todo */
+        }
         .slide { display: none; width: 100vw; height: 100vh; padding: 40px; box-sizing: border-box; }
         .active { display: block; }
-        .header { color: #4caf50; font-size: 2.5em; margin-bottom: 20px; border-bottom: 2px solid #333; }
-        pre { background: #111; padding: 25px; border: 1px solid #444; font-size: 1.5em; overflow: auto; }
+        .header { 
+            color: #4caf50; 
+            font-size: 2.5em; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid #333; 
+        }
+        pre { 
+            background: #111; 
+            padding: 25px; 
+            border: 1px solid #444; 
+            font-size: 1.5em; 
+            overflow: auto; 
+            user-select: text; /* PERMITE selecionar apenas o código */
+            cursor: text;
+        }
         .nav-area { position: fixed; top: 0; bottom: 0; width: 15%; z-index: 100; cursor: pointer; }
         .nav-right { right: 0; }
         .nav-left { left: 0; }
