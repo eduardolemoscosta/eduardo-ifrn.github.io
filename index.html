@@ -2,38 +2,17 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Consulta Django </title>
+    <title>Consulta Django - Eduardo</title>
     <style>
-        body { 
-            font-family: monospace; 
-            background: #000; 
-            color: #fff; 
-            margin: 0; 
-            overflow: hidden; 
-            user-select: none; 
-        }
+        body { font-family: monospace; background: #000; color: #fff; margin: 0; overflow: hidden; user-select: none; }
         .slide { display: none; width: 100vw; height: 100vh; padding: 40px; box-sizing: border-box; }
         .active { display: block; }
-        .header { 
-            color: #4caf50; 
-            font-size: 2.5em; 
-            margin-bottom: 20px; 
-            border-bottom: 2px solid #333; 
-        }
+        .header { color: #4caf50; font-size: 2.5em; margin-bottom: 20px; border-bottom: 2px solid #333; }
         .subheader { color: #888; font-size: 0.5em; display: block; margin-top: 5px; }
-        pre { 
-            background: #111; 
-            padding: 25px; 
-            border: 1px solid #444; 
-            font-size: 1.5em; 
-            overflow: auto; 
-            user-select: text; 
-            cursor: text;
-        }
+        pre { background: #111; padding: 25px; border: 1px solid #444; font-size: 1.5em; overflow: auto; user-select: text; cursor: text; }
         .nav-area { position: fixed; top: 0; bottom: 0; width: 5%; z-index: 100; cursor: pointer; }
         .nav-right { right: 0; }
         .nav-left { left: 0; }
-        .nav-area:hover { background: rgba(255, 255, 255, 0.05); }
         .counter { position: fixed; bottom: 20px; right: 20px; color: #555; font-size: 1.2em; }
     </style>
 </head>
@@ -43,53 +22,47 @@
     <div class="nav-area nav-right" onclick="move(1)"></div>
 
     <div class="slide active">
-        <div class="header">forms.py <span class="subheader">(Dentro da pasta do APP)</span></div>
+        <div class="header">forms.py <span class="subheader">(Pasta do APP)</span></div>
         <pre>
 from django import forms
-from .models import SeuModelo
+from .models import SeuModelo # // ALTERAR: Aluno, Treino, etc.
 
-class SeuModeloForm(forms.ModelForm):
+class SeuModeloForm(forms.ModelForm): # // ALTERAR: AlunoForm
     class Meta:
-        model = SeuModelo
+        model = SeuModelo # // ALTERAR
         fields = '__all__'</pre>
     </div>
 
     <div class="slide">
-        <div class="header">views.py (Listar e Excluir) <span class="subheader">(Dentro da pasta do APP)</span></div>
+        <div class="header">views.py (Listar) <span class="subheader">(Pasta do APP)</span></div>
         <pre>
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import SeuModelo
-from .forms import SeuModeloForm
+from .models import SeuModelo # // ALTERAR
+from .forms import SeuModeloForm # // ALTERAR
 
 def listar(request):
-    dados = SeuModelo.objects.all()
-    return render(request, 'index.html', {'dados': dados})
-
-@login_required
-def excluir(request, id):
-    obj = get_object_or_404(SeuModelo, pk=id)
-    obj.delete()
-    return redirect('url_da_lista')</pre>
+    dados = SeuModelo.objects.all() # // ALTERAR
+    return render(request, 'index.html', {'dados': dados})</pre>
     </div>
 
     <div class="slide">
-        <div class="header">views.py (Salvar/Editar) <span class="subheader">(Dentro da pasta do APP)</span></div>
+        <div class="header">views.py (Salvar/Editar) <span class="subheader">(Pasta do APP)</span></div>
         <pre>
-@login_required
+@login_required # // AUTENTICAÇÃO
 def salvar(request, id=None):
-    obj = get_object_or_404(SeuModelo, pk=id) if id else None
-    form = SeuModeloForm(request.POST or None, instance=obj)
+    obj = get_object_or_404(SeuModelo, pk=id) if id else None # // ALTERAR
+    form = SeuModeloForm(request.POST or None, instance=obj) # // ALTERAR
     
     if request.method == 'POST' and form.is_valid():
         form.save()
-        return redirect('url_da_lista')
+        return redirect('url_da_lista') # // ALTERAR: name da URL
         
     return render(request, 'form.html', {'form': form})</pre>
     </div>
 
     <div class="slide">
-        <div class="header">urls.py <span class="subheader">(Dentro da pasta do APP)</span></div>
+        <div class="header">urls.py <span class="subheader">(Pasta do APP)</span></div>
         <pre>
 from django.urls import path
 from . import views
@@ -105,40 +78,44 @@ urlpatterns = [
     <div class="slide">
         <div class="header">index.html <span class="subheader">(Pasta templates do APP)</span></div>
         <pre>
-{% if user.is_authenticated %}
-    &lt;a href="{% url 'url_criar' %}"&gt;Novo&lt;/a&gt;
-{% endif %}
-
 {% for item in dados %}
-    &lt;p&gt;{{ item.nome }}&lt;/p&gt;
+    &lt;p&gt;{{ item.nome }}&lt;/p&gt; # // ALTERAR: campo real do banco
+    
     &lt;a href="{% url 'url_editar' item.id %}"&gt;Editar&lt;/a&gt;
-    {% if user.is_superuser %}
+    
+    {% if user.is_superuser %} # // AUTORIZAÇÃO (ADMIN)
         &lt;a href="{% url 'url_deletar' item.id %}"&gt;Excluir&lt;/a&gt;
     {% endif %}
 {% endfor %}</pre>
     </div>
 
     <div class="slide">
-        <div class="header">form.html e settings.py <span class="subheader">(Templates e Projeto)</span></div>
+        <div class="header">form.html e settings.py <span class="subheader">(Obrigatórios)</span></div>
         <pre>
-&lt;!-- form.html (No APP) --&gt;
+&lt;!-- form.html --&gt;
 &lt;form method="POST"&gt;
-    {% csrf_token %}
+    {% csrf_token %} # // OBRIGATÓRIO PARA SALVAR
     {{ form.as_p }}
     &lt;button type="submit"&gt;Salvar&lt;/button&gt;
 &lt;/form&gt;
 
-# settings.py (Na pasta do PROJETO)
-LOGIN_REDIRECT_URL = 'url_da_lista'
-LOGOUT_REDIRECT_URL = 'login'</pre>
+# settings.py (No PROJETO)
+LOGIN_REDIRECT_URL = 'url_da_lista' # // ALTERAR</pre>
     </div>
 
     <div class="slide">
         <div class="header">Comandos de Terminal <span class="subheader">(Raiz do projeto)</span></div>
         <pre>
+# Preparar mudanças no banco
 python manage.py makemigrations
+
+# Aplicar mudanças no banco
 python manage.py migrate
+
+# Ligar o servidor
 python manage.py runserver
+
+# Criar login do administrador
 python manage.py createsuperuser</pre>
     </div>
 
@@ -148,7 +125,6 @@ python manage.py createsuperuser</pre>
         let current = 0;
         const slides = document.querySelectorAll('.slide');
         const num = document.getElementById('page-num');
-
         function move(dir) {
             slides[current].classList.remove('active');
             current += dir;
@@ -157,7 +133,6 @@ python manage.py createsuperuser</pre>
             slides[current].classList.add('active');
             num.innerText = `${current + 1} / ${slides.length}`;
         }
-
         document.addEventListener('keydown', (e) => {
             if (e.key === "ArrowRight") move(1);
             if (e.key === "ArrowLeft") move(-1);
