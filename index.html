@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Consulta Django</title>
+    <title>Consulta Django - Eduardo</title>
     <style>
         body { 
             font-family: monospace; 
@@ -30,9 +30,12 @@
             user-select: text; 
             cursor: text;
         }
-        .nav-area { position: fixed; top: 0; bottom: 0; width: 15%; z-index: 100; cursor: pointer; }
+        /* BOTÕES DE NAVEGAÇÃO DIMINUÍDOS PARA 5% */
+        .nav-area { position: fixed; top: 0; bottom: 0; width: 5%; z-index: 100; cursor: pointer; }
         .nav-right { right: 0; }
         .nav-left { left: 0; }
+        .nav-area:hover { background: rgba(255, 255, 255, 0.05); } /* Leve destaque ao passar o mouse */
+        
         .counter { position: fixed; bottom: 20px; right: 20px; color: #555; font-size: 1.2em; }
     </style>
 </head>
@@ -120,7 +123,7 @@ urlpatterns = [
     <div class="slide">
         <div class="header">form.html e settings.py <span class="subheader">(Templates e Projeto)</span></div>
         <pre>
-&lt;!-- form.html --&gt;
+&lt;!-- form.html (No APP) --&gt;
 &lt;form method="POST"&gt;
     {% csrf_token %}
     {{ form.as_p }}
