@@ -2,253 +2,196 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Slides de Consulta - Eduardo IFRN</title>
+    <title>Guia de Prova Django - Eduardo</title>
     <style>
         * { box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; background: #121212; color: #e0e0e0; 
-            overflow: hidden; /* Impede scroll comum para focar no clique */
-        }
-        .slide-container {
-            display: flex;
-            width: 400vw; /* 4 slides */
-            height: 100vh;
-            transition: transform 0.5s ease-in-out;
-        }
-        .slide {
-            width: 100vw;
-            height: 100vh;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-        }
-        .file-header {
-            background: #2d2d2d;
-            padding: 15px 25px;
-            border-radius: 10px 10px 0 0;
-            border-left: 5px solid #4caf50;
-            font-family: monospace;
-            font-size: 1.5em;
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .content {
-            background: #1e1e1e;
-            flex-grow: 1;
-            padding: 20px;
-            border-radius: 0 0 10px 10px;
-            border: 1px solid #333;
-            overflow-y: auto;
-        }
-        pre { 
-            background: #000; 
-            padding: 20px; 
-            border-radius: 5px; 
-            color: #9cdcfe; 
-            font-size: 1.1em;
-            line-height: 1.4;
-            margin: 0;
-        }
-        /* Controles invisíveis nas extremidades */
-        .nav-zone {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            width: 10%;
-            z-index: 100;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-            background: rgba(255,255,255,0.03);
-        }
-        .nav-zone:hover { opacity: 1; }
-        .left-zone { left: 0; }
-        .right-zone { right: 0; }
-        .hint { color: #555; font-size: 0.8em; position: fixed; bottom: 10px; width: 100%; text-align: center; }
-        .keyword { color: #569cd6; }
-        .comment { color: #6a9955; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #0a0a0a; color: #eee; overflow: hidden; }
+        
+        .container { display: flex; width: 600vw; height: 100vh; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .slide { width: 100vw; height: 100vh; padding: 40px; display: flex; flex-direction: column; }
+        
+        .header { background: #1a1a1a; padding: 20px; border-left: 8px solid #4caf50; border-radius: 8px 8px 0 0; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .filename { font-family: 'Consolas', monospace; font-size: 1.8em; color: #4caf50; }
+        .instruction { color: #aaa; margin-top: 5px; font-size: 1.1em; }
+        
+        .code-box { background: #1e1e1e; flex-grow: 1; padding: 25px; border-radius: 0 0 8px 8px; border: 1px solid #333; overflow-y: auto; margin-top: 2px; }
+        pre { font-family: 'Consolas', monospace; color: #9cdcfe; font-size: 1.15em; line-height: 1.5; margin: 0; }
+        
+        
+        .kwd { color: #569cd6; }
+        .cmt { color: #6a9955; font-style: italic; }
+        .str { color: #ce9178; } 
+        .decorator { color: #dcdcaa; }
+        
+        
+        .nav { position: fixed; top: 0; bottom: 0; width: 8%; z-index: 1000; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 2em; color: rgba(255,255,255,0.1); }
+        .nav:hover { background: rgba(255,255,255,0.05); color: #4caf50; }
+        .left { left: 0; }
+        .right { right: 0; }
+        
+        .page-indicator { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); color: #555; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
-    <div class="nav-zone left-zone" onclick="moveSlide(-1)">◀ VOLTAR</div>
-    <div class="nav-zone right-zone" onclick="moveSlide(1)">AVANÇAR ▶</div>
+    <div class="nav left" onclick="move(-1)">❮</div>
+    <div class="nav right" onclick="move(1)">❯</div>
 
-    <div class="slide-container" id="container">
+    <div class="container" id="main">
         
         <section class="slide">
-            <div class="file-header">📄 views.py (Lógica CRUD)</div>
-            <div class="content">
+            <div class="header">
+                <div class="filename">📂 pasta_do_app / forms.py</div>
+                <div class="instruction">Crie ou edite para definir como os dados entram no sistema.</div>
+            </div>
+            <div class="code-box">
                 <pre>
-<span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render, redirect, get_object_or_404
-<span class="keyword">from</span> django.contrib.auth.decorators <span class="keyword">import</span> login_required
-<span class="keyword">from</span> .models <span class="keyword">import</span> SeuModelo
-<span class="keyword">from</span> .forms <span class="keyword">import</span> SeuModeloForm
+<span class="kwd">from</span> django <span class="kwd">import</span> forms
+<span class="kwd">from</span> .models <span class="kwd">import</span> SeuModelo <span class="cmt"># Mude para o nome da sua classe</span>
 
-<span class="keyword">@login_required</span>
-<span class="keyword">def</span> salvar(request, id=<span class="keyword">None</span>):
-    <span class="comment"># Se vier ID, edita. Se não, cria novo.</span>
-    obj = get_object_or_404(SeuModelo, pk=id) <span class="keyword">if</span> id <span class="keyword">else</span> <span class="keyword">None</span>
-    form = SeuModeloForm(request.POST <span class="keyword">or</span> <span class="keyword">None</span>, instance=obj)
-    
-    <span class="keyword">if</span> request.method == <span class="keyword">'POST'</span>:
-        <span class="keyword">if</span> form.is_valid():
-            form.save()
-            <span class="keyword">return</span> redirect(<span class="keyword">'listagem'</span>)
-            
-    <span class="keyword">return</span> render(request, <span class="keyword">'form.html'</span>, {<span class="keyword">'form'</span>: form})
-
-<span class="keyword">def</span> excluir(request, id):
-    get_object_or_404(SeuModelo, pk=id).delete()
-    <span class="keyword">return</span> redirect(<span class="keyword">'listagem'</span>)
-                </pre>
+<span class="kwd">class</span> SeuModeloForm(forms.ModelForm):
+    <span class="kwd">class</span> Meta:
+        model = SeuModelo
+        fields = <span class="str">'__all__'</span> <span class="cmt"># Ou ['campo1', 'campo2']</span></pre>
             </div>
         </section>
 
         <section class="slide">
-            <div class="file-header">📄 urls.py (Rotas)</div>
-            <div class="content">
+            <div class="header">
+                <div class="filename">📂 pasta_do_app / views.py (Parte 1)</div>
+                <div class="instruction">Lógica para mostrar dados e remover itens.</div>
+            </div>
+            <div class="code-box">
                 <pre>
-<span class="keyword">from</span> django.urls <span class="keyword">import</span> path
-<span class="keyword">from</span> . <span class="keyword">import</span> views
+<span class="kwd">from</span> django.shortcuts <span class="kwd">import</span> render, redirect, get_object_or_404
+<span class="kwd">from</span> django.contrib.auth.decorators <span class="kwd">import</span> <span class="decorator">login_required</span>
+<span class="kwd">from</span> .models <span class="kwd">import</span> SeuModelo
+
+<span class="cmt"># MOSTRAR TUDO</span>
+<span class="kwd">def</span> listar(request):
+    dados = SeuModelo.objects.all()
+    <span class="kwd">return</span> render(request, <span class="str">'index.html'</span>, {<span class="str">'dados'</span>: dados})
+
+<span class="cmt"># EXCLUIR (Protegido)</span>
+<span class="decorator">@login_required</span>
+<span class="kwd">def</span> excluir(request, id):
+    obj = get_object_or_404(SeuModelo, pk=id)
+    obj.delete()
+    <span class="kwd">return</span> redirect(<span class="str">'url_da_lista'</span>)</pre>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="header">
+                <div class="filename">📂 pasta_do_app / views.py (Parte 2)</div>
+                <div class="instruction">Lógica para salvar e atualizar (Note o uso do ID).</div>
+            </div>
+            <div class="code-box">
+                <pre>
+<span class="kwd">from</span> .forms <span class="kwd">import</span> SeuModeloForm
+
+<span class="decorator">@login_required</span>
+<span class="kwd">def</span> salvar(request, id=<span class="kwd">None</span>):
+    <span class="cmt"># Se tem ID, busca objeto (EDIT). Se não, é None (CRIAR).</span>
+    obj = get_object_or_404(SeuModelo, pk=id) <span class="kwd">if</span> id <span class="kwd">else None</span>
+    
+    <span class="cmt"># O 'instance' preenche o form se for edição</span>
+    form = SeuModeloForm(request.POST <span class="kwd">or None</span>, instance=obj)
+    
+    <span class="kwd">if</span> request.method == <span class="str">'POST'</span> <span class="kwd">and</span> form.is_valid():
+        form.save()
+        <span class="kwd">return</span> redirect(<span class="str">'url_da_lista'</span>)
+        
+    <span class="kwd">return</span> render(request, <span class="str">'form.html'</span>, {<span class="str">'form'</span>: form})</pre>
+            </div>
+        </section>
+
+        <section class="slide">
+            <div class="header">
+                <div class="filename">📂 pasta_do_app / urls.py</div>
+                <div class="instruction">Defina os caminhos. O <int:id> é fundamental.</div>
+            </div>
+            <div class="code-box">
+                <pre>
+<span class="kwd">from</span> django.urls <span class="kwd">import</span> path
+<span class="kwd">from</span> . <span class="kwd">import</span> views
 
 urlpatterns = [
-    path(<span class="keyword">''</span>, views.listagem, name=<span class="keyword">'listagem'</span>),
-    path(<span class="keyword">'novo/'</span>, views.salvar, name=<span class="keyword">'criar'</span>),
-    <span class="comment"># Importante: o &lt;int:id&gt; deve bater com o nome na view</span>
-    path(<span class="keyword">'editar/&lt;int:id&gt;/'</span>, views.salvar, name=<span class="keyword">'editar'</span>),
-    path(<span class="keyword">'excluir/&lt;int:id&gt;/'</span>, views.excluir, name=<span class="keyword">'excluir'</span>),
-]
-                </pre>
+    path(<span class="str">''</span>, views.listar, name=<span class="str">'url_da_lista'</span>),
+    path(<span class="str">'novo/'</span>, views.salvar, name=<span class="str">'url_criar'</span>),
+    path(<span class="str">'editar/&lt;int:id&gt;/'</span>, views.salvar, name=<span class="str">'url_editar'</span>),
+    path(<span class="str">'deletar/&lt;int:id&gt;/'</span>, views.excluir, name=<span class="str">'url_deletar'</span>),
+]</pre>
             </div>
         </section>
 
         <section class="slide">
-            <div class="file-header">📄 index.html (Listagem e Auth)</div>
-            <div class="content">
+            <div class="header">
+                <div class="filename">📂 templates / index.html</div>
+                <div class="instruction">Interface principal com loop e travas de segurança.</div>
+            </div>
+            <div class="code-box">
                 <pre>
-<span class="comment">&lt;!-- No index.html do seu repositório --&gt;</span>
-{% <span class="keyword">if</span> user.is_authenticated %}
-    &lt;p&gt;Usuário: {{ user.username }}&lt;/p&gt;
-    &lt;a href="{% url 'logout' %}"&gt;Sair&lt;/a&gt;
-{% <span class="keyword">endif</span> %}
+<span class="cmt">&lt;!-- Se estiver logado --&gt;</span>
+{% <span class="kwd">if</span> user.is_authenticated %}
+    &lt;a href="{% url 'url_criar' %}"&gt;Novo Item&lt;/a&gt;
+{% <span class="kwd">endif</span> %}
 
-{% <span class="keyword">for</span> item <span class="keyword">in</span> dados %}
-    {{ item.nome }}
-    &lt;a href="{% url 'editar' item.id %}"&gt;Editar&lt;/a&gt;
+{% <span class="kwd">for</span> item <span class="kwd">in</span> dados %}
+    &lt;p&gt;{{ item.nome }}&lt;/p&gt;
+    &lt;a href="{% url 'url_editar' item.id %}"&gt;Editar&lt;/a&gt;
     
-    <span class="comment">&lt;!-- Autorização nível Admin --&gt;</span>
-    {% <span class="keyword">if</span> user.is_superuser %}
-        &lt;a href="{% url 'excluir' item.id %}"&gt;Excluir&lt;/a&gt;
-    {% <span class="keyword">endif</span> %}
-{% <span class="keyword">endfor</span> %}
-
-<span class="comment">&lt;!-- No form.html --&gt;</span>
-&lt;form method="POST"&gt;
-    {% csrf_token %}
-    {{ form.as_p }}
-    &lt;button type="submit"&gt;Salvar&lt;/button&gt;
-&lt;/form&gt;
-                </pre>
+    <span class="cmt">&lt;!-- Somente Admin vê Excluir --&gt;</span>
+    {% <span class="kwd">if</span> user.is_superuser %}
+        &lt;a href="{% url 'url_deletar' item.id %}"&gt;Excluir&lt;/a&gt;
+    {% <span class="kwd">endif</span> %}
+{% <span class="kwd">endfor</span> %}</pre>
             </div>
         </section>
 
         <section class="slide">
-            <div class="file-header">📄 settings.py & Comandos</div>
-            <div class="content">
+            <div class="header">
+                <div class="filename">📂 templates / form.html</div>
+                <div class="instruction">Onde o formulário aparece. Não esqueça o token!</div>
+            </div>
+            <div class="code-box">
                 <pre>
-<span class="comment"># No final do settings.py</span>
-LOGIN_URL = <span class="keyword">'login'</span>
-LOGIN_REDIRECT_URL = <span class="keyword">'listagem'</span>
-LOGOUT_REDIRECT_URL = <span class="keyword">'login'</span>
+&lt;h1&gt;Cadastro / Edição&lt;/h1&gt;
 
-<span class="comment"># Comandos de Terminal</span>
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
-
-<span class="comment"># Se precisar criar admin rápido:</span>
-python manage.py createsuperuser
-                </pre>
+&lt;form method=<span class="str">"POST"</span>&gt;
+    {% csrf_token %} <span class="cmt">&lt;!-- SEM ISSO DÁ ERRO 403 --&gt;</span>
+    
+    {{ form.as_p }}
+    
+    &lt;button type=<span class="str">"submit"</span>&gt;Confirmar&lt;/button&gt;
+    &lt;a href="{% url 'url_da_lista' %}"&gt;Cancelar&lt;/a&gt;
+&lt;/form&gt;</pre>
             </div>
         </section>
+
     </div>
 
-    <div class="hint">Clique nas bordas laterais para navegar</div>
+    <div class="page-indicator" id="ind">Slide 1 / 6</div>
 
     <script>
-        let currentSlide = 0;
-        const totalSlides = 4;
-        const container = document.getElementById('container');
+        let cur = 0;
+        const total = 6;
+        const main = document.getElementById('main');
+        const ind = document.getElementById('ind');
 
-        function moveSlide(direction) {
-            currentSlide += direction;
-            if (currentSlide < 0) currentSlide = 0;
-            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
-            
-            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+        function move(dir) {
+            cur += dir;
+            if (cur < 0) cur = 0;
+            if (cur >= total) cur = total - 1;
+            main.style.transform = `translateX(-${cur * 100}vw)`;
+            ind.innerText = `Slide ${cur + 1} / ${total}`;
         }
 
-        // Suporte a setas do teclado também
         document.addEventListener('keydown', (e) => {
-            if (e.key === "ArrowRight") moveSlide(1);
-            if (e.key === "ArrowLeft") moveSlide(-1);
+            if (e.key === "ArrowRight") move(1);
+            if (e.key === "ArrowLeft") move(-1);
         });
     </script>
-</body>
-</html>
-    </section>
-
-    <section class="slide">
-        <div class="file-header">📄 index.html</div>
-        <div class="content">
-            <pre>
-<span class="comment">&lt;!-- Verificação de Autenticação --&gt;</span>
-{% <span class="keyword">if</span> user.is_authenticated %}
-    &lt;p&gt;Usuário: {{ user.username }}&lt;/p&gt;
-    &lt;a href="{% url 'logout' %}"&gt;Sair&lt;/a&gt;
-{% <span class="keyword">else</span> %}
-    &lt;a href="{% url 'login' %}"&gt;Entrar&lt;/a&gt;
-{% <span class="keyword">endif</span> %}
-
-<span class="comment">&lt;!-- Loop de Dados --&gt;</span>
-{% <span class="keyword">for</span> item <span class="keyword">in</span> dados %}
-    {{ item.nome }}
-    <span class="comment">&lt;!-- Autorização: Só admin vê botão de excluir --&gt;</span>
-    {% <span class="keyword">if</span> user.is_superuser %}
-        &lt;a href="{% url 'excluir' item.id %}"&gt;Excluir&lt;/a&gt;
-    {% <span class="keyword">endif</span> %}
-{% <span class="keyword">endfor</span> %}
-            </pre>
-        </div>
-    </section>
-
-    <section class="slide">
-        <div class="file-header">📄 forms.py & settings.py</div>
-        <div class="content">
-            <pre>
-<span class="comment"># forms.py</span>
-<span class="keyword">class</span> SeuModeloForm(forms.ModelForm):
-    <span class="keyword">class</span> Meta:
-        model = SeuModelo
-        fields = <span class="keyword">'__all__'</span>
-
-<span class="comment"># settings.py (Final do arquivo)</span>
-LOGIN_URL = <span class="keyword">'login'</span>
-LOGIN_REDIRECT_URL = <span class="keyword">'listagem'</span>
-LOGOUT_REDIRECT_URL = <span class="keyword">'login'</span>
-            </pre>
-            <div class="tip">
-                <b>COMANDOS:</b><br>
-                python manage.py makemigrations<br>
-                python manage.py migrate
-            </div>
-        </div>
-    </section>
-
 </body>
 </html>
