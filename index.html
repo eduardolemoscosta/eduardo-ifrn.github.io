@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Consulta Django - Eduardo</title>
+    <title>Consulta Django</title>
     <style>
         body { 
             font-family: monospace; 
@@ -10,7 +10,7 @@
             color: #fff; 
             margin: 0; 
             overflow: hidden; 
-            user-select: none; /* Bloqueia seleção no corpo todo */
+            user-select: none; 
         }
         .slide { display: none; width: 100vw; height: 100vh; padding: 40px; box-sizing: border-box; }
         .active { display: block; }
@@ -20,13 +20,14 @@
             margin-bottom: 20px; 
             border-bottom: 2px solid #333; 
         }
+        .subheader { color: #888; font-size: 0.5em; display: block; margin-top: 5px; }
         pre { 
             background: #111; 
             padding: 25px; 
             border: 1px solid #444; 
             font-size: 1.5em; 
             overflow: auto; 
-            user-select: text; /* PERMITE selecionar apenas o código */
+            user-select: text; 
             cursor: text;
         }
         .nav-area { position: fixed; top: 0; bottom: 0; width: 15%; z-index: 100; cursor: pointer; }
@@ -41,7 +42,7 @@
     <div class="nav-area nav-right" onclick="move(1)"></div>
 
     <div class="slide active">
-        <div class="header">forms.py</div>
+        <div class="header">forms.py <span class="subheader">(Dentro da pasta do APP)</span></div>
         <pre>
 from django import forms
 from .models import SeuModelo
@@ -53,7 +54,7 @@ class SeuModeloForm(forms.ModelForm):
     </div>
 
     <div class="slide">
-        <div class="header">views.py (Listar e Excluir)</div>
+        <div class="header">views.py (Listar e Excluir) <span class="subheader">(Dentro da pasta do APP)</span></div>
         <pre>
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -72,7 +73,7 @@ def excluir(request, id):
     </div>
 
     <div class="slide">
-        <div class="header">views.py (Salvar/Editar)</div>
+        <div class="header">views.py (Salvar/Editar) <span class="subheader">(Dentro da pasta do APP)</span></div>
         <pre>
 @login_required
 def salvar(request, id=None):
@@ -87,7 +88,7 @@ def salvar(request, id=None):
     </div>
 
     <div class="slide">
-        <div class="header">urls.py</div>
+        <div class="header">urls.py <span class="subheader">(Dentro da pasta do APP)</span></div>
         <pre>
 from django.urls import path
 from . import views
@@ -101,7 +102,7 @@ urlpatterns = [
     </div>
 
     <div class="slide">
-        <div class="header">index.html</div>
+        <div class="header">index.html <span class="subheader">(Pasta templates do APP)</span></div>
         <pre>
 {% if user.is_authenticated %}
     &lt;a href="{% url 'url_criar' %}"&gt;Novo&lt;/a&gt;
@@ -117,7 +118,7 @@ urlpatterns = [
     </div>
 
     <div class="slide">
-        <div class="header">form.html e settings.py</div>
+        <div class="header">form.html e settings.py <span class="subheader">(Templates e Projeto)</span></div>
         <pre>
 &lt;!-- form.html --&gt;
 &lt;form method="POST"&gt;
@@ -126,12 +127,21 @@ urlpatterns = [
     &lt;button type="submit"&gt;Salvar&lt;/button&gt;
 &lt;/form&gt;
 
-# settings.py
+# settings.py (No final do arquivo do PROJETO)
 LOGIN_REDIRECT_URL = 'url_da_lista'
 LOGOUT_REDIRECT_URL = 'login'</pre>
     </div>
 
-    <div class="counter" id="page-num">1 / 6</div>
+    <div class="slide">
+        <div class="header">Comandos de Terminal <span class="subheader">(Rodar na pasta raiz do projeto)</span></div>
+        <pre>
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+python manage.py createsuperuser</pre>
+    </div>
+
+    <div class="counter" id="page-num">1 / 7</div>
 
     <script>
         let current = 0;
